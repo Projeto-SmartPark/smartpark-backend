@@ -10,19 +10,136 @@ use Throwable;
 
 class GestorController extends Controller
 {
-    // Lista todos os gestores
+    /**
+     * @OA\Get(
+     *     path="/gestores",
+     *     tags={"Gestores"},
+     *     summary="Lista todos os gestores",
+     *     description="Retorna uma lista com todos os gestores cadastrados no sistema",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de gestores retornada com sucesso",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id_gestor", type="integer", example=1),
+     *                 @OA\Property(property="nome", type="string", example="Maria Santos"),
+     *                 @OA\Property(property="email", type="string", example="maria@empresa.com"),
+     *                 @OA\Property(property="cnpj", type="string", example="12345678000190"),
+     *                 @OA\Property(property="usuario_id", type="integer", example=2)
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
         return Gestor::all();
     }
 
-    // Exibe um gestor específico
+    /**
+     * @OA\Get(
+     *     path="/gestores/{id}",
+     *     tags={"Gestores"},
+     *     summary="Exibe um gestor específico",
+     *     description="Retorna os dados detalhados de um gestor pelo ID",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do gestor",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dados do gestor retornados com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id_gestor", type="integer", example=1),
+     *             @OA\Property(property="nome", type="string", example="Maria Santos"),
+     *             @OA\Property(property="email", type="string", example="maria@empresa.com"),
+     *             @OA\Property(property="cnpj", type="string", example="12345678000190"),
+     *             @OA\Property(property="usuario_id", type="integer", example=2)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Gestor não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Modules\\Usuarios\\Gestor].")
+     *         )
+     *     )
+     * )
+     */
     public function show($id)
     {
         return Gestor::findOrFail($id);
     }
 
-    // Atualiza dados de um gestor com validação de email único
+    /**
+     * @OA\Put(
+     *     path="/gestores/{id}",
+     *     tags={"Gestores"},
+     *     summary="Atualiza dados de um gestor",
+     *     description="Atualiza as informações de um gestor existente com validação de email único",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do gestor",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nome", "email", "senha", "cnpj"},
+     *             @OA\Property(property="nome", type="string", maxLength=100, example="Maria Santos"),
+     *             @OA\Property(property="email", type="string", format="email", maxLength=100, example="maria@empresa.com"),
+     *             @OA\Property(property="senha", type="string", maxLength=100, example="novaSenha123"),
+     *             @OA\Property(property="cnpj", type="string", maxLength=20, example="12345678000190", description="Apenas números")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Gestor atualizado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Gestor atualizado com sucesso.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Gestor não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Gestor não encontrado."),
+     *             @OA\Property(property="message", type="string", example="O gestor com o ID informado não existe.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Email já cadastrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Email já cadastrado."),
+     *             @OA\Property(property="message", type="string", example="Já existe outro gestor com este email.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Dados inválidos."),
+     *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Erro ao atualizar gestor."),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, $id)
     {
         try {
@@ -71,7 +188,28 @@ class GestorController extends Controller
         }
     }
 
-    // Remove um gestor (implementar soft delete)
+    /**
+     * @OA\Delete(
+     *     path="/gestores/{id}",
+     *     tags={"Gestores"},
+     *     summary="Remove um gestor",
+     *     description="Deleta um gestor do sistema",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do gestor",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Gestor removido com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Gestor removido com sucesso.")
+     *         )
+     *     )
+     * )
+     */
     public function destroy($id)
     {
         Gestor::destroy($id);
