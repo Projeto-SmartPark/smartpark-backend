@@ -1,14 +1,22 @@
 <?php
 
-namespace App\Modules\Usuarios;
+namespace App\Modules\Usuarios\Controllers;
 
+use App\Modules\Usuarios\Services\UsuarioService;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class UsuariosController extends Controller
 {
+    private UsuarioService $usuarioService;
+
+    public function __construct(UsuarioService $usuarioService)
+    {
+        $this->usuarioService = $usuarioService;
+    }
     /**
      * @OA\Get(
      *     path="/usuarios",
@@ -25,12 +33,10 @@ class UsuariosController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        return response()->json([
-            'clientes' => Cliente::all(),
-            'gestores' => Gestor::all(),
-        ]);
+        $usuarios = $this->usuarioService->listarTodos();
+        return response()->json($usuarios);
     }
 
     /**
@@ -69,83 +75,52 @@ class UsuariosController extends Controller
      *         response=422,
      *         description="Dados inválidos",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object")
+     *             @OA\Property(property="error", type="string", example="Dados inválidos."),
+     *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
+     *             @OA\Property(property="errors", type="object", example={"email": {"O campo email é obrigatório."}})
      *         )
      *     ),
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
      *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string")
+     *             @OA\Property(property="error", type="string", example="Erro no servidor."),
+     *             @OA\Property(property="message", type="string", example="Ocorreu um erro inesperado ao processar a requisição.")
      *         )
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // Validação básica dos dados recebidos
-        $dados = $request->validate([
-            'perfil' => 'required|in:C,G',
-            'nome'   => 'required|string|max:100',
-            'email'  => 'required|email|max:100',
-            'senha'  => 'required|string|max:100',
-            'cnpj'   => 'nullable|string|max:20'
-        ]);
-
-        // Verifica se o email já existe conforme o perfil
-        if ($dados['perfil'] === 'C') {
-            $emailExiste = Cliente::where('email', $dados['email'])->exists();
-            if ($emailExiste) {
-                return response()->json([
-                    'error' => 'Email já cadastrado.',
-                    'message' => 'Já existe um cliente com este email.'
-                ], 409);
-            }
-        } else {
-            $emailExiste = Gestor::where('email', $dados['email'])->exists();
-            if ($emailExiste) {
-                return response()->json([
-                    'error' => 'Email já cadastrado.',
-                    'message' => 'Já existe um gestor com este email.'
-                ], 409);
-            }
-        }
-
-        DB::beginTransaction();
-
         try {
-            // Cria o registro genérico na tabela usuarios
-            $usuario = DB::table('usuarios')->insertGetId([
-                'perfil' => $dados['perfil']
+            $dados = $request->validate([
+                'perfil' => 'required|in:C,G',
+                'nome'   => 'required|string|max:100',
+                'email'  => 'required|email|max:100',
+                'senha'  => 'required|string|max:100',
+                'cnpj'   => 'nullable|string|max:20'
             ]);
 
-            // Cria o tipo de usuário conforme o perfil informado
-            if ($dados['perfil'] === 'C') {
-                Cliente::create([
-                    'nome' => $dados['nome'],
-                    'email' => $dados['email'],
-                    'senha' => $dados['senha'],
-                    'usuario_id' => $usuario,
-                ]);
-            } 
+            $resultado = $this->usuarioService->criar($dados);
             
-            if ($dados['perfil'] === 'G') {
-                Gestor::create([
-                    'nome' => $dados['nome'],
-                    'email' => $dados['email'],
-                    'senha' => $dados['senha'],
-                    'cnpj' => $dados['cnpj'] ?? '',
-                    'usuario_id' => $usuario,
-                ]);
-            }
+            return response()->json($resultado, 201);
 
-            DB::commit();
-            return response()->json(['message' => 'Usuário criado com sucesso.'], 201);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Dados inválidos.',
+                'message' => 'Os dados fornecidos não são válidos.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Email já cadastrado.',
+                'message' => $e->getMessage()
+            ], 409);
         } catch (Throwable $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Erro no servidor.',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -175,41 +150,24 @@ class UsuariosController extends Controller
      *         response=404,
      *         description="Usuário não encontrado",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Usuário não encontrado.")
+     *             @OA\Property(property="error", type="string", example="Usuário não encontrado."),
+     *             @OA\Property(property="message", type="string", example="O usuário com o ID informado não existe.")
      *         )
      *     )
      * )
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        $dadosUsuario = DB::table('usuarios')->where('id_usuario', $id)->first();
+        $usuario = $this->usuarioService->buscarPorId($id);
 
-        if (!$dadosUsuario) {
-            return response()->json(['message' => 'Usuário não encontrado.'], 404);
-        }
-
-        // Se for cliente
-        if ($dadosUsuario->perfil === 'C') {
-            $cliente = Cliente::where('usuario_id', $id)->first();
+        if (!$usuario) {
             return response()->json([
-                'id_usuario' => $dadosUsuario->id_usuario,
-                'perfil' => 'C',
-                'dados' => $cliente
-            ]);
+                'error' => 'Usuário não encontrado.',
+                'message' => 'O usuário com o ID informado não existe.'
+            ], 404);
         }
 
-        // Se for gestor
-        if ($dadosUsuario->perfil === 'G') {
-            $gestor = Gestor::where('usuario_id', $id)->first();
-            return response()->json([
-                'id_usuario' => $dadosUsuario->id_usuario,
-                'perfil' => 'G',
-                'dados' => $gestor
-            ]);
-        }
-
-        // Se não for nenhum tipo válido
-        return response()->json(['message' => 'Tipo de usuário inválido.'], 400);
+        return response()->json($usuario);
     }
 
     /**
@@ -244,44 +202,27 @@ class UsuariosController extends Controller
      *         response=500,
      *         description="Erro ao remover usuário",
      *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string"),
-     *             @OA\Property(property="message", type="string")
+     *             @OA\Property(property="error", type="string", example="Erro ao remover usuário."),
+     *             @OA\Property(property="message", type="string", example="Ocorreu um erro inesperado ao remover o usuário.")
      *         )
      *     )
      * )
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         try {
-            // Busca o usuário na tabela usuarios
-            $dadosUsuario = DB::table('usuarios')->where('id_usuario', $id)->first();
-
-            if (!$dadosUsuario) {
-                return response()->json([
-                    'error' => 'Usuário não encontrado.',
-                    'message' => 'O usuário com o ID informado não existe.'
-                ], 404);
-            }
-
-            DB::beginTransaction();
-
-            // Remove o cliente ou gestor conforme o perfil
-            if ($dadosUsuario->perfil === 'C') {
-                Cliente::where('usuario_id', $id)->delete();
-            } 
+            $this->usuarioService->remover($id);
             
-            if ($dadosUsuario->perfil === 'G') {
-                Gestor::where('usuario_id', $id)->delete();
-            }
+            return response()->json([
+                'message' => 'Usuário removido com sucesso.'
+            ]);
 
-            // Remove o registro da tabela usuarios
-            DB::table('usuarios')->where('id_usuario', $id)->delete();
-
-            DB::commit();
-            return response()->json(['message' => 'Usuário removido com sucesso.']);
-
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Usuário não encontrado.',
+                'message' => $e->getMessage()
+            ], 404);
         } catch (Throwable $e) {
-            DB::rollBack();
             return response()->json([
                 'error' => 'Erro ao remover usuário.',
                 'message' => $e->getMessage()

@@ -1,15 +1,23 @@
 <?php
 
-namespace App\Modules\Usuarios;
+namespace App\Modules\Usuarios\Controllers;
 
+use App\Modules\Usuarios\Services\ClienteService;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class ClienteController extends Controller
 {
+    private ClienteService $clienteService;
+
+    public function __construct(ClienteService $clienteService)
+    {
+        $this->clienteService = $clienteService;
+    }
     /**
      * @OA\Get(
      *     path="/clientes",
@@ -31,9 +39,10 @@ class ClienteController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        return Cliente::all();
+        $clientes = $this->clienteService->listarTodos();
+        return response()->json($clientes);
     }
 
     /**
@@ -63,14 +72,23 @@ class ClienteController extends Controller
      *         response=404,
      *         description="Cliente não encontrado",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Modules\\Usuarios\\Cliente].")
+     *             @OA\Property(property="error", type="string", example="Cliente não encontrado."),
+     *             @OA\Property(property="message", type="string", example="O cliente com o ID informado não existe.")
      *         )
      *     )
      * )
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        return Cliente::findOrFail($id);
+        try {
+            $cliente = $this->clienteService->buscarPorId($id);
+            return response()->json($cliente);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Cliente não encontrado.',
+                'message' => 'O cliente com o ID informado não existe.'
+            ], 404);
+        }
     }
 
     /**
@@ -137,39 +155,31 @@ class ClienteController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         try {
-            // Validação dos dados
             $dados = $request->validate([
                 'nome'  => 'required|string|max:100',
                 'email' => 'required|email|max:100',
                 'senha' => 'required|string|max:100',
             ]);
 
-            $cliente = Cliente::findOrFail($id);
+            $this->clienteService->atualizar($id, $dados);
 
-            // Verifica se o email já existe em outro cliente
-            $emailExiste = Cliente::where('email', $dados['email'])
-                ->where('id_cliente', '!=', $id)
-                ->exists();
-
-            if ($emailExiste) {
-                return response()->json([
-                    'error' => 'Email já cadastrado.',
-                    'message' => 'Já existe outro cliente com este email.'
-                ], 409);
-            }
-
-            $cliente->update($dados);
-
-            return response()->json(['message' => 'Cliente atualizado com sucesso.']);
+            return response()->json([
+                'message' => 'Cliente atualizado com sucesso.'
+            ]);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Cliente não encontrado.',
                 'message' => 'O cliente com o ID informado não existe.'
             ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Email já cadastrado.',
+                'message' => $e->getMessage()
+            ], 409);
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Dados inválidos.',
@@ -203,12 +213,45 @@ class ClienteController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Cliente removido com sucesso.")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Cliente não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Cliente não encontrado."),
+     *             @OA\Property(property="message", type="string", example="O cliente com o ID informado não existe.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro ao remover cliente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Erro ao remover cliente."),
+     *             @OA\Property(property="message", type="string", example="Ocorreu um erro inesperado ao remover o cliente.")
+     *         )
      *     )
      * )
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
-        Cliente::destroy($id);
-        return response()->json(['message' => 'Cliente removido com sucesso.']);
+        try {
+            $cliente = $this->clienteService->buscarPorId($id);
+            $this->clienteService->remover($id);
+            
+            return response()->json([
+                'message' => 'Cliente removido com sucesso.'
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Cliente não encontrado.',
+                'message' => 'O cliente com o ID informado não existe.'
+            ], 404);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'Erro ao remover cliente.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

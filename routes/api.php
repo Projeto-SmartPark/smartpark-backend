@@ -1,30 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Modules\Usuarios\UsuariosController;
-use App\Modules\Usuarios\ClienteController;
-use App\Modules\Usuarios\GestorController;
+/**
+ * Rotas da API
+ * 
+ * Todas as rotas aqui são automaticamente prefixadas com /api
+ * conforme configurado no bootstrap/app.php
+ * 
+ * Para adicionar novos módulos:
+ * 1. Crie um arquivo routes.php dentro do módulo (app/Modules/NomeModulo/routes.php)
+ * 2. Registre-o aqui usando require
+ */
 
-Route::prefix('usuarios')->group(function () {
-    // CRUD genérico de usuários
-    Route::get('/', [UsuariosController::class, 'index']);      // Listar todos
-    Route::post('/', [UsuariosController::class, 'store']);     // Criar usuário
-    Route::get('/{id}', [UsuariosController::class, 'show']);   // Mostrar usuário
-    Route::delete('/{id}', [UsuariosController::class, 'destroy']); // Remover usuário
-});
-
-// CRUD específico de clientes
-Route::prefix('clientes')->group(function () {
-    Route::get('/', [ClienteController::class, 'index']);      // Listar clientes
-    Route::get('/{id}', [ClienteController::class, 'show']);   // Mostrar cliente
-    Route::put('/{id}', [ClienteController::class, 'update']); // Atualizar cliente
-    Route::delete('/{id}', [ClienteController::class, 'destroy']); // Remover cliente
-});
-
-// CRUD específico de gestores
-Route::prefix('gestores')->group(function () {
-    Route::get('/', [GestorController::class, 'index']);       // Listar gestores
-    Route::get('/{id}', [GestorController::class, 'show']);    // Mostrar gestor
-    Route::put('/{id}', [GestorController::class, 'update']);  // Atualizar gestor
-    Route::delete('/{id}', [GestorController::class, 'destroy']); // Remover gestor
-});
+// Módulo de Usuários (Clientes e Gestores)
+require app_path('Modules/Usuarios/routes.php');
