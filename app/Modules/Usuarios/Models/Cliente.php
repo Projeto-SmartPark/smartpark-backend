@@ -12,7 +12,10 @@ class Cliente extends Usuario
         'nome',
         'email',
         'senha',
-        'usuario_id',
+    ];
+
+    protected $hidden = [
+        'senha',
     ];
 
     /**
@@ -20,7 +23,7 @@ class Cliente extends Usuario
      */
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'id_usuario');
+        return $this->belongsTo(Usuario::class, 'id_cliente', 'id_usuario');
     }
 
     /**

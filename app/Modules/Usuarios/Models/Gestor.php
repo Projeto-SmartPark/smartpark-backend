@@ -13,7 +13,10 @@ class Gestor extends Usuario
         'email',
         'senha',
         'cnpj',
-        'usuario_id',
+    ];
+
+    protected $hidden = [
+        'senha',
     ];
 
     /**
@@ -21,7 +24,7 @@ class Gestor extends Usuario
      */
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'id_usuario');
+        return $this->belongsTo(Usuario::class, 'id_gestor', 'id_usuario');
     }
 
     /**

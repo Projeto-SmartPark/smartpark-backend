@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id('id_usuario');
-            $table->char('perfil', 1)->comment('C = Cliente | G = Gestor | A = Administrador');
-            // $table->timestamps();
+            $table->enum('perfil', ['C', 'G']);
         });
     }
 
