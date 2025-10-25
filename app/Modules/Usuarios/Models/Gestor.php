@@ -9,6 +9,7 @@ class Gestor extends Usuario
     public $timestamps = false;
 
     protected $fillable = [
+        'id_gestor',
         'nome',
         'email',
         'senha',

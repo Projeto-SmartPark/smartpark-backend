@@ -9,6 +9,7 @@ class Cliente extends Usuario
     public $timestamps = false;
 
     protected $fillable = [
+        'id_cliente',
         'nome',
         'email',
         'senha',

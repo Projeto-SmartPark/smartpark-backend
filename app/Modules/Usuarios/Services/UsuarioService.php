@@ -142,18 +142,18 @@ class UsuarioService
     {
         if ($dados['perfil'] === 'C') {
             Cliente::create([
+                'id_cliente' => $usuarioId,
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
                 'senha' => $dados['senha'],
-                'usuario_id' => $usuarioId,
             ]);
         } else {
             Gestor::create([
+                'id_gestor' => $usuarioId,
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
                 'senha' => $dados['senha'],
                 'cnpj' => $dados['cnpj'] ?? '',
-                'usuario_id' => $usuarioId,
             ]);
         }
     }
@@ -169,9 +169,9 @@ class UsuarioService
         $dados = null;
 
         if ($dadosUsuario->perfil === 'C') {
-            $dados = Cliente::where('usuario_id', $dadosUsuario->id_usuario)->first();
+            $dados = Cliente::where('id_cliente', $dadosUsuario->id_usuario)->first();
         } elseif ($dadosUsuario->perfil === 'G') {
-            $dados = Gestor::where('usuario_id', $dadosUsuario->id_usuario)->first();
+            $dados = Gestor::where('id_gestor', $dadosUsuario->id_usuario)->first();
         }
 
         return [
@@ -190,9 +190,9 @@ class UsuarioService
     private function removerTipoEspecifico(string $perfil, int $usuarioId): void
     {
         if ($perfil === 'C') {
-            Cliente::where('usuario_id', $usuarioId)->delete();
+            Cliente::where('id_cliente', $usuarioId)->delete();
         } elseif ($perfil === 'G') {
-            Gestor::where('usuario_id', $usuarioId)->delete();
+            Gestor::where('id_gestor', $usuarioId)->delete();
         }
     }
 }
