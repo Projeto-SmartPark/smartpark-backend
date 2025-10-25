@@ -37,6 +37,11 @@ namespace App\Docs;
  *     name="Gestores",
  *     description="Operações específicas para gestores de estacionamento"
  * )
+ * 
+ * @OA\Tag(
+ *     name="Endereços",
+ *     description="Operações de gerenciamento de endereços"
+ * )
  */
 class SwaggerInfo
 {
