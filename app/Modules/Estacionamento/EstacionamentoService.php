@@ -3,26 +3,58 @@
 namespace App\Modules\Estacionamento;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Modules\Telefone\TelefoneService;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class EstacionamentoService
 {
+    private TelefoneService $telefoneService;
+
+    public function __construct(TelefoneService $telefoneService)
+    {
+        $this->telefoneService = $telefoneService;
+    }
+
     /**
      * Listar todos os estacionamentos
      */
     public function listarEstacionamentos()
     {
-        return Estacionamento::all();
+        return Estacionamento::with('telefones')->get();
     }
 
     /**
      * Criar novo estacionamento
      * 
      * @param array $dados
+     * @param array $telefones
      * @return Estacionamento
+     * @throws \Exception
      */
-    public function criarEstacionamento(array $dados): Estacionamento
+    public function criarEstacionamento(array $dados, array $telefones): Estacionamento
     {
-        return Estacionamento::create($dados);
+        DB::beginTransaction();
+
+        try {
+            // Cria estacionamento
+            $estacionamento = Estacionamento::create($dados);
+
+            // Vincula telefones
+            if (!empty($telefones)) {
+                $this->telefoneService->vincularTelefonesAoEstacionamento(
+                    $estacionamento->id_estacionamento,
+                    $telefones
+                );
+            }
+
+            DB::commit();
+            return $estacionamento->load('telefones');
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -34,7 +66,7 @@ class EstacionamentoService
      */
     public function buscarEstacionamentoPorId(int $id): Estacionamento
     {
-        return Estacionamento::findOrFail($id);
+        return Estacionamento::with('telefones')->findOrFail($id);
     }
 
     /**
@@ -42,14 +74,30 @@ class EstacionamentoService
      * 
      * @param int $id
      * @param array $dados
+     * @param array $telefones
      * @return Estacionamento
      * @throws ModelNotFoundException
      */
-    public function atualizarEstacionamento(int $id, array $dados): Estacionamento
+    public function atualizarEstacionamento(int $id, array $dados, array $telefones): Estacionamento
     {
-        $estacionamento = $this->buscarEstacionamentoPorId($id);
-        $estacionamento->update($dados);
-        return $estacionamento;
+        DB::beginTransaction();
+
+        try {
+            $estacionamento = Estacionamento::findOrFail($id);
+            $estacionamento->update($dados);
+
+            // Atualiza telefones
+            if (!empty($telefones)) {
+                $this->telefoneService->atualizarTelefonesDoEstacionamento($id, $telefones);
+            }
+
+            DB::commit();
+            return $estacionamento->load('telefones');
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -61,7 +109,23 @@ class EstacionamentoService
      */
     public function deletarEstacionamento(int $id): bool
     {
-        $estacionamento = $this->buscarEstacionamentoPorId($id);
-        return $estacionamento->delete();
+        DB::beginTransaction();
+
+        try {
+            $estacionamento = Estacionamento::findOrFail($id);
+
+            // Deleta telefones vinculados
+            $this->telefoneService->deletarTelefonesDoEstacionamento($id);
+
+            // Deleta estacionamento
+            $result = $estacionamento->delete();
+
+            DB::commit();
+            return $result;
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

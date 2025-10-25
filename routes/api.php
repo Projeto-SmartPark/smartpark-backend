@@ -19,3 +19,6 @@ require app_path('Modules/Endereco/routes.php');
 
 // Módulo de Estacionamento
 require app_path('Modules/Estacionamento/routes.php');
+
+// Módulo de Telefone
+require app_path('Modules/Telefone/routes.php');

@@ -5,6 +5,7 @@ namespace App\Modules\Estacionamento;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\Usuarios\Models\Gestor;
 use App\Modules\Endereco\Endereco;
+use App\Modules\Telefone\Telefone;
 
 class Estacionamento extends Model
 {
@@ -40,5 +41,18 @@ class Estacionamento extends Model
     public function endereco()
     {
         return $this->belongsTo(Endereco::class, 'endereco_id', 'id_endereco');
+    }
+
+    /**
+     * Relacionamento: Um estacionamento tem vários telefones (many-to-many)
+     */
+    public function telefones()
+    {
+        return $this->belongsToMany(
+            Telefone::class,
+            'estacionamento_telefones',
+            'id_estacionamento',
+            'id_telefone'
+        );
     }
 }

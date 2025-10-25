@@ -53,89 +53,116 @@ class EstacionamentoController extends Controller
      *     path="/estacionamentos",
      *     tags={"Estacionamentos"},
      *     summary="Cria um novo estacionamento",
-     *     description="Cadastra um novo estacionamento no sistema",
+     *     description="Cadastra um novo estacionamento no sistema com telefones",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco_id"},
-     *             @OA\Property(property="nome", type="string", maxLength=100, example="Estacionamento Central"),
-     *             @OA\Property(property="capacidade", type="integer", example=100),
-     *             @OA\Property(property="hora_abertura", type="string", format="time", example="08:00:00"),
-     *             @OA\Property(property="hora_fechamento", type="string", format="time", example="22:00:00"),
-     *             @OA\Property(property="lotado", type="string", enum={"S", "N"}, example="N", description="S=Sim, N=Não"),
-     *             @OA\Property(property="gestor_id", type="integer", example=1),
-     *             @OA\Property(property="endereco_id", type="integer", example=1)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Estacionamento criado com sucesso",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Estacionamento criado com sucesso."),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Dados inválidos",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="errors", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Erro no servidor",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string", example="Erro ao criar estacionamento."),
-     *             @OA\Property(property="message", type="string")
-     *         )
-     *     )
-     * )
-     */
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:100',
-            'capacidade' => 'required|integer|min:1',
-            'hora_abertura' => 'required|date_format:H:i:s',
-            'hora_fechamento' => 'required|date_format:H:i:s',
-            'lotado' => 'nullable|in:S,N',
-            'gestor_id' => 'required|integer|exists:gestores,id_gestor',
-            'endereco_id' => 'required|integer|exists:enderecos,id_endereco',
-        ], [
-            'nome.required' => 'O campo nome é obrigatório.',
-            'nome.string' => 'O campo nome deve ser um texto.',
-            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
-            'capacidade.required' => 'O campo capacidade é obrigatório.',
-            'capacidade.integer' => 'O campo capacidade deve ser um número inteiro.',
-            'capacidade.min' => 'O campo capacidade deve ser no mínimo 1.',
-            'hora_abertura.required' => 'O campo hora de abertura é obrigatório.',
-            'hora_abertura.date_format' => 'O campo hora de abertura deve estar no formato HH:MM:SS.',
-            'hora_fechamento.required' => 'O campo hora de fechamento é obrigatório.',
-            'hora_fechamento.date_format' => 'O campo hora de fechamento deve estar no formato HH:MM:SS.',
-            'lotado.in' => 'O campo lotado deve ser S (Sim) ou N (Não).',
-            'gestor_id.required' => 'O campo gestor é obrigatório.',
-            'gestor_id.integer' => 'O campo gestor deve ser um número inteiro.',
-            'gestor_id.exists' => 'O gestor informado não existe.',
-            'endereco_id.required' => 'O campo endereço é obrigatório.',
-            'endereco_id.integer' => 'O campo endereço deve ser um número inteiro.',
-            'endereco_id.exists' => 'O endereço informado não existe.',
-        ]);
+     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco_id", "telefones"},
+             @OA\Property(property="nome", type="string", maxLength=100, example="Estacionamento Central"),
+             @OA\Property(property="capacidade", type="integer", example=100),
+             @OA\Property(property="hora_abertura", type="string", format="time", example="08:00:00"),
+             @OA\Property(property="hora_fechamento", type="string", format="time", example="22:00:00"),
+             @OA\Property(property="lotado", type="string", enum={"S", "N"}, example="N", description="S=Sim, N=Não"),
+             @OA\Property(property="gestor_id", type="integer", example=1),
+             @OA\Property(property="endereco_id", type="integer", example=1),
+             @OA\Property(
+                 property="telefones",
+                 type="array",
+                 description="Array de telefones (mínimo 1, máximo 2)",
+                 @OA\Items(
+                     type="object",
+                     required={"ddd", "numero"},
+                     @OA\Property(property="ddd", type="string", maxLength=2, example="11"),
+                     @OA\Property(property="numero", type="string", maxLength=9, example="987654321")
+                 )
+             )
+         )
+     ),
+     @OA\Response(
+         response=201,
+         description="Estacionamento criado com sucesso",
+         @OA\JsonContent(
+             @OA\Property(property="message", type="string", example="Estacionamento criado com sucesso."),
+             @OA\Property(property="data", type="object")
+         )
+     ),
+     @OA\Response(
+         response=422,
+         description="Dados inválidos",
+         @OA\JsonContent(
+             @OA\Property(property="message", type="string"),
+             @OA\Property(property="errors", type="object")
+         )
+     ),
+     @OA\Response(
+         response=500,
+         description="Erro no servidor",
+         @OA\JsonContent(
+             @OA\Property(property="error", type="string", example="Erro ao criar estacionamento."),
+             @OA\Property(property="message", type="string")
+         )
+     )
+ )
+ */
+public function store(Request $request): JsonResponse
+{
+    $validated = $request->validate([
+        'nome' => 'required|string|max:100',
+        'capacidade' => 'required|integer|min:1',
+        'hora_abertura' => 'required|date_format:H:i:s',
+        'hora_fechamento' => 'required|date_format:H:i:s',
+        'lotado' => 'nullable|in:S,N',
+        'gestor_id' => 'required|integer|exists:gestores,id_gestor',
+        'endereco_id' => 'required|integer|exists:enderecos,id_endereco',
+        'telefones' => 'required|array|min:1|max:2',
+        'telefones.*.ddd' => 'required|string|size:2',
+        'telefones.*.numero' => 'required|string|max:9',
+    ], [
+        'nome.required' => 'O campo nome é obrigatório.',
+        'nome.string' => 'O campo nome deve ser um texto.',
+        'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+        'capacidade.required' => 'O campo capacidade é obrigatório.',
+        'capacidade.integer' => 'O campo capacidade deve ser um número inteiro.',
+        'capacidade.min' => 'O campo capacidade deve ser no mínimo 1.',
+        'hora_abertura.required' => 'O campo hora de abertura é obrigatório.',
+        'hora_abertura.date_format' => 'O campo hora de abertura deve estar no formato HH:MM:SS.',
+        'hora_fechamento.required' => 'O campo hora de fechamento é obrigatório.',
+        'hora_fechamento.date_format' => 'O campo hora de fechamento deve estar no formato HH:MM:SS.',
+        'lotado.in' => 'O campo lotado deve ser S (Sim) ou N (Não).',
+        'gestor_id.required' => 'O campo gestor é obrigatório.',
+        'gestor_id.integer' => 'O campo gestor deve ser um número inteiro.',
+        'gestor_id.exists' => 'O gestor informado não existe.',
+        'endereco_id.required' => 'O campo endereço é obrigatório.',
+        'endereco_id.integer' => 'O campo endereço deve ser um número inteiro.',
+        'endereco_id.exists' => 'O endereço informado não existe.',
+        'telefones.required' => 'É obrigatório informar pelo menos um telefone.',
+        'telefones.array' => 'Os telefones devem ser informados em formato de array.',
+        'telefones.min' => 'É obrigatório informar pelo menos 1 telefone.',
+        'telefones.max' => 'É permitido informar no máximo 2 telefones.',
+        'telefones.*.ddd.required' => 'O DDD do telefone é obrigatório.',
+        'telefones.*.ddd.string' => 'O DDD deve ser um texto.',
+        'telefones.*.ddd.size' => 'O DDD deve ter exatamente 2 caracteres.',
+        'telefones.*.numero.required' => 'O número do telefone é obrigatório.',
+        'telefones.*.numero.string' => 'O número deve ser um texto.',
+        'telefones.*.numero.max' => 'O número não pode ter mais de 9 caracteres.',
+    ]);
 
-        try {
-            $estacionamento = $this->estacionamentoService->criarEstacionamento($validated);
-            return response()->json([
-                'message' => 'Estacionamento criado com sucesso.',
-                'data' => $estacionamento
-            ], 201);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Erro ao criar estacionamento.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
+    try {
+        $telefones = $validated['telefones'];
+        unset($validated['telefones']);
+        
+        $estacionamento = $this->estacionamentoService->criarEstacionamento($validated, $telefones);
+        return response()->json([
+            'message' => 'Estacionamento criado com sucesso.',
+            'data' => $estacionamento
+        ], 201);
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'Erro ao criar estacionamento.',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * @OA\Get(
@@ -203,14 +230,25 @@ class EstacionamentoController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco_id"},
+     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco_id", "telefones"},
      *             @OA\Property(property="nome", type="string", maxLength=100, example="Estacionamento Central"),
      *             @OA\Property(property="capacidade", type="integer", example=100),
      *             @OA\Property(property="hora_abertura", type="string", format="time", example="08:00:00"),
      *             @OA\Property(property="hora_fechamento", type="string", format="time", example="22:00:00"),
      *             @OA\Property(property="lotado", type="string", enum={"S", "N"}, example="N"),
      *             @OA\Property(property="gestor_id", type="integer", example=1),
-     *             @OA\Property(property="endereco_id", type="integer", example=1)
+     *             @OA\Property(property="endereco_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="telefones",
+     *                 type="array",
+     *                 description="Array de telefones (mínimo 1, máximo 2)",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     required={"ddd", "numero"},
+     *                     @OA\Property(property="ddd", type="string", maxLength=2, example="11"),
+     *                     @OA\Property(property="numero", type="string", maxLength=9, example="987654321")
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -257,6 +295,9 @@ class EstacionamentoController extends Controller
             'lotado' => 'nullable|in:S,N',
             'gestor_id' => 'required|integer|exists:gestores,id_gestor',
             'endereco_id' => 'required|integer|exists:enderecos,id_endereco',
+            'telefones' => 'required|array|min:1|max:2',
+            'telefones.*.ddd' => 'required|string|size:2',
+            'telefones.*.numero' => 'required|string|max:9',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.string' => 'O campo nome deve ser um texto.',
@@ -275,10 +316,23 @@ class EstacionamentoController extends Controller
             'endereco_id.required' => 'O campo endereço é obrigatório.',
             'endereco_id.integer' => 'O campo endereço deve ser um número inteiro.',
             'endereco_id.exists' => 'O endereço informado não existe.',
+            'telefones.required' => 'É obrigatório informar pelo menos um telefone.',
+            'telefones.array' => 'Os telefones devem ser informados em formato de array.',
+            'telefones.min' => 'É obrigatório informar pelo menos 1 telefone.',
+            'telefones.max' => 'É permitido informar no máximo 2 telefones.',
+            'telefones.*.ddd.required' => 'O DDD do telefone é obrigatório.',
+            'telefones.*.ddd.string' => 'O DDD deve ser um texto.',
+            'telefones.*.ddd.size' => 'O DDD deve ter exatamente 2 caracteres.',
+            'telefones.*.numero.required' => 'O número do telefone é obrigatório.',
+            'telefones.*.numero.string' => 'O número deve ser um texto.',
+            'telefones.*.numero.max' => 'O número não pode ter mais de 9 caracteres.',
         ]);
 
         try {
-            $estacionamento = $this->estacionamentoService->atualizarEstacionamento($id, $validated);
+            $telefones = $validated['telefones'];
+            unset($validated['telefones']);
+            
+            $estacionamento = $this->estacionamentoService->atualizarEstacionamento($id, $validated, $telefones);
             return response()->json([
                 'message' => 'Estacionamento atualizado com sucesso.',
                 'data' => $estacionamento
