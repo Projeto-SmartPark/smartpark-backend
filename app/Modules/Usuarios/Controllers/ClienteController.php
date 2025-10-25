@@ -162,6 +162,16 @@ class ClienteController extends Controller
                 'nome'  => 'required|string|max:100',
                 'email' => 'required|email|max:100',
                 'senha' => 'required|string|max:100',
+            ], [
+                'nome.required' => 'O campo nome é obrigatório.',
+                'nome.string' => 'O campo nome deve ser um texto.',
+                'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+                'email.required' => 'O campo email é obrigatório.',
+                'email.email' => 'O campo email deve ser um endereço de email válido.',
+                'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+                'senha.required' => 'O campo senha é obrigatório.',
+                'senha.string' => 'O campo senha deve ser um texto.',
+                'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
             ]);
 
             $this->clienteService->atualizar($id, $dados);

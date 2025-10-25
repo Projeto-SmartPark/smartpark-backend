@@ -293,6 +293,19 @@ class EnderecoController extends Controller
             'ponto_referencia' => 'nullable|string|max:100',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric'
+        ], [
+            'cep.required' => 'O campo cep é obrigatório.',
+            'cep.size' => 'O campo cep deve ter 8 caracteres.',
+            'estado.required' => 'O campo estado é obrigatório.',
+            'estado.size' => 'O campo estado deve ter 2 caracteres.',
+            'cidade.required' => 'O campo cidade é obrigatório.',
+            'cidade.max' => 'O campo cidade deve ter no máximo 80 caracteres.',
+            'bairro.required' => 'O campo bairro é obrigatório.',
+            'bairro.max' => 'O campo bairro deve ter no máximo 80 caracteres.',
+            'numero.required' => 'O campo numero é obrigatório.',
+            'numero.max' => 'O campo numero deve ter no máximo 10 caracteres.',
+            'logradouro.required' => 'O campo logradouro é obrigatório.',
+            'logradouro.max' => 'O campo logradouro deve ter no máximo 120 caracteres.',
         ]);
 
         try {
