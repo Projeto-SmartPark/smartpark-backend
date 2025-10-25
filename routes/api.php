@@ -22,3 +22,6 @@ require app_path('Modules/Estacionamento/routes.php');
 
 // Módulo de Telefone
 require app_path('Modules/Telefone/routes.php');
+
+// Módulo de Vaga
+require app_path('Modules/Vaga/routes.php');

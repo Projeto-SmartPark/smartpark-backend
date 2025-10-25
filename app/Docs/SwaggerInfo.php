@@ -52,6 +52,11 @@ namespace App\Docs;
  *     name="Telefones",
  *     description="Operações de gerenciamento de telefones de contato"
  * )
+ * 
+ * @OA\Tag(
+ *     name="Vagas",
+ *     description="Operações de gerenciamento de vagas de estacionamento"
+ * )
  */
 class SwaggerInfo
 {
