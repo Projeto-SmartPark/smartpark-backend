@@ -16,3 +16,6 @@ require app_path('Modules/Usuarios/routes.php');
 
 // Módulo de Endereço
 require app_path('Modules/Endereco/routes.php');
+
+// Módulo de Estacionamento
+require app_path('Modules/Estacionamento/routes.php');

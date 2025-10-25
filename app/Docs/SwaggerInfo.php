@@ -42,6 +42,11 @@ namespace App\Docs;
  *     name="Endereços",
  *     description="Operações de gerenciamento de endereços"
  * )
+ * 
+ * @OA\Tag(
+ *     name="Estacionamentos",
+ *     description="Operações de gerenciamento de estacionamentos"
+ * )
  */
 class SwaggerInfo
 {
