@@ -1,13 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Modules\Usuarios\Controllers\UsuariosController;
 use App\Modules\Usuarios\Controllers\ClienteController;
 use App\Modules\Usuarios\Controllers\GestorController;
+use App\Modules\Usuarios\Controllers\UsuariosController;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Rotas do Módulo de Usuários
- * 
+ *
  * Todas as rotas deste arquivo já estão prefixadas com /api
  * devido à configuração do RouteServiceProvider
  */

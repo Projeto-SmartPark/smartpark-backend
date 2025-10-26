@@ -2,11 +2,11 @@
 
 namespace App\Modules\Acesso;
 
-use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 /**
  * @OA\Tag(
@@ -28,12 +28,16 @@ class AcessoController extends Controller
      *     path="/acessos",
      *     summary="Listar todos os acessos",
      *     tags={"Acessos"},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Lista de acessos retornada com sucesso",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="id_acesso", type="integer", example=1),
      *                 @OA\Property(property="data", type="string", format="date", example="2025-01-15"),
      *                 @OA\Property(property="hora_inicio", type="string", format="time", example="08:30:00"),
@@ -69,6 +73,7 @@ class AcessoController extends Controller
     {
         try {
             $acessos = $this->acessoService->listarAcessos();
+
             return response()->json($acessos, 200);
         } catch (Exception $e) {
             return response()->json(['error' => 'Erro ao listar acessos'], 500);
@@ -80,10 +85,13 @@ class AcessoController extends Controller
      *     path="/acessos",
      *     summary="Criar novo acesso",
      *     tags={"Acessos"},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"data", "hora_inicio", "veiculo_id", "vaga_id", "cliente_id"},
+     *
      *             @OA\Property(property="data", type="string", format="date", example="2025-01-15"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="08:30:00"),
      *             @OA\Property(property="hora_fim", type="string", format="time", example="12:45:00"),
@@ -93,10 +101,13 @@ class AcessoController extends Controller
      *             @OA\Property(property="cliente_id", type="integer", example=3)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Acesso criado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_acesso", type="integer", example=1),
      *             @OA\Property(property="data", type="string", format="date", example="2025-01-15"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="08:30:00"),
@@ -107,6 +118,7 @@ class AcessoController extends Controller
      *             @OA\Property(property="cliente_id", type="integer", example=3)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Erro de validação"
@@ -122,7 +134,7 @@ class AcessoController extends Controller
             'valor_total' => 'nullable|numeric|min:0',
             'veiculo_id' => 'required|exists:veiculos,id_veiculo',
             'vaga_id' => 'required|exists:vagas,id_vaga',
-            'cliente_id' => 'required|exists:clientes,id_cliente'
+            'cliente_id' => 'required|exists:clientes,id_cliente',
         ], [
             'data.required' => 'A data do acesso é obrigatória',
             'data.date' => 'A data do acesso deve estar no formato válido',
@@ -136,19 +148,20 @@ class AcessoController extends Controller
             'vaga_id.required' => 'A vaga é obrigatória',
             'vaga_id.exists' => 'Vaga não encontrada',
             'cliente_id.required' => 'O cliente é obrigatório',
-            'cliente_id.exists' => 'Cliente não encontrado'
+            'cliente_id.exists' => 'Cliente não encontrado',
         ]);
 
         try {
             $acesso = $this->acessoService->criarAcesso($request->all());
+
             return response()->json([
                 'message' => 'Acesso criado com sucesso.',
-                'data' => $acesso
+                'data' => $acesso,
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao criar acesso.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -158,17 +171,22 @@ class AcessoController extends Controller
      *     path="/acessos/{id}",
      *     summary="Buscar acesso por ID",
      *     tags={"Acessos"},
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         required=true,
      *         description="ID do acesso",
+     *
      *         @OA\Schema(type="integer")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Acesso encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_acesso", type="integer", example=1),
      *             @OA\Property(property="data", type="string", format="date", example="2025-01-15"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="08:30:00"),
@@ -197,6 +215,7 @@ class AcessoController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Acesso não encontrado"
@@ -207,6 +226,7 @@ class AcessoController extends Controller
     {
         try {
             $acesso = $this->acessoService->buscarAcessoPorId($id);
+
             return response()->json($acesso, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Acesso não encontrado'], 404);
@@ -220,16 +240,21 @@ class AcessoController extends Controller
      *     path="/acessos/{id}",
      *     summary="Atualizar acesso",
      *     tags={"Acessos"},
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         required=true,
      *         description="ID do acesso",
+     *
      *         @OA\Schema(type="integer")
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="data", type="string", format="date", example="2025-01-15"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="08:30:00"),
      *             @OA\Property(property="hora_fim", type="string", format="time", example="13:00:00"),
@@ -239,10 +264,13 @@ class AcessoController extends Controller
      *             @OA\Property(property="cliente_id", type="integer", example=3)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Acesso atualizado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_acesso", type="integer", example=1),
      *             @OA\Property(property="data", type="string", format="date", example="2025-01-15"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="08:30:00"),
@@ -253,6 +281,7 @@ class AcessoController extends Controller
      *             @OA\Property(property="cliente_id", type="integer", example=3)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Acesso não encontrado"
@@ -272,7 +301,7 @@ class AcessoController extends Controller
             'valor_total' => 'nullable|numeric|min:0',
             'veiculo_id' => 'sometimes|exists:veiculos,id_veiculo',
             'vaga_id' => 'sometimes|exists:vagas,id_vaga',
-            'cliente_id' => 'sometimes|exists:clientes,id_cliente'
+            'cliente_id' => 'sometimes|exists:clientes,id_cliente',
         ], [
             'data.date' => 'A data do acesso deve estar no formato válido',
             'hora_inicio.date_format' => 'A hora de início deve estar no formato HH:MM:SS',
@@ -281,24 +310,25 @@ class AcessoController extends Controller
             'valor_total.min' => 'O valor total deve ser no mínimo 0',
             'veiculo_id.exists' => 'Veículo não encontrado',
             'vaga_id.exists' => 'Vaga não encontrada',
-            'cliente_id.exists' => 'Cliente não encontrado'
+            'cliente_id.exists' => 'Cliente não encontrado',
         ]);
 
         try {
             $acesso = $this->acessoService->atualizarAcesso($id, $request->all());
+
             return response()->json([
                 'message' => 'Acesso atualizado com sucesso.',
-                'data' => $acesso
+                'data' => $acesso,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Acesso não encontrado.',
-                'message' => 'O acesso com o ID informado não existe.'
+                'message' => 'O acesso com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar acesso.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -308,20 +338,26 @@ class AcessoController extends Controller
      *     path="/acessos/{id}",
      *     summary="Deletar acesso",
      *     tags={"Acessos"},
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         required=true,
      *         description="ID do acesso",
+     *
      *         @OA\Schema(type="integer")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Acesso deletado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Acesso deletado com sucesso")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Acesso não encontrado"
@@ -332,6 +368,7 @@ class AcessoController extends Controller
     {
         try {
             $this->acessoService->deletarAcesso($id);
+
             return response()->json(['message' => 'Acesso deletado com sucesso'], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Acesso não encontrado'], 404);

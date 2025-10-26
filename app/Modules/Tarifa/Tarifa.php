@@ -2,24 +2,26 @@
 
 namespace App\Modules\Tarifa;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Estacionamento\Estacionamento;
+use Illuminate\Database\Eloquent\Model;
 
 class Tarifa extends Model
 {
     protected $table = 'tarifas';
+
     protected $primaryKey = 'id_tarifa';
+
     public $timestamps = false;
 
     protected $fillable = [
         'nome',
         'valor',
         'tipo',
-        'estacionamento_id'
+        'estacionamento_id',
     ];
 
     protected $casts = [
-        'valor' => 'decimal:2'
+        'valor' => 'decimal:2',
     ];
 
     /**

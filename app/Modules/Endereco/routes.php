@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Endereco\EnderecoController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('enderecos')->group(function () {
     Route::get('/', [EnderecoController::class, 'index']);

@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Veiculo\VeiculoController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('veiculos')->group(function () {
     Route::get('/', [VeiculoController::class, 'index']);

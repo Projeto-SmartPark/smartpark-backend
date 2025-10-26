@@ -16,9 +16,6 @@ class AcessoService
 
     /**
      * Criar novo acesso
-     * 
-     * @param array $dados
-     * @return Acesso
      */
     public function criarAcesso(array $dados): Acesso
     {
@@ -27,9 +24,7 @@ class AcessoService
 
     /**
      * Buscar acesso por ID
-     * 
-     * @param int $id
-     * @return Acesso
+     *
      * @throws ModelNotFoundException
      */
     public function buscarAcessoPorId(int $id): Acesso
@@ -39,29 +34,26 @@ class AcessoService
 
     /**
      * Atualizar acesso
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Acesso
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarAcesso(int $id, array $dados): Acesso
     {
         $acesso = $this->buscarAcessoPorId($id);
         $acesso->update($dados);
+
         return $acesso;
     }
 
     /**
      * Deletar acesso
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarAcesso(int $id): bool
     {
         $acesso = $this->buscarAcessoPorId($id);
+
         return $acesso->delete();
     }
 }

@@ -22,19 +22,19 @@ return new class extends Migration
             $table->unsignedBigInteger('cliente_id');
 
             $table->foreign('veiculo_id')
-                  ->references('id_veiculo')
-                  ->on('veiculos')
-                  ->onDelete('cascade');
+                ->references('id_veiculo')
+                ->on('veiculos')
+                ->onDelete('cascade');
 
             $table->foreign('vaga_id')
-                  ->references('id_vaga')
-                  ->on('vagas')
-                  ->onDelete('cascade');
+                ->references('id_vaga')
+                ->on('vagas')
+                ->onDelete('cascade');
 
             $table->foreign('cliente_id')
-                  ->references('id_cliente')
-                  ->on('clientes')
-                  ->onDelete('cascade');
+                ->references('id_cliente')
+                ->on('clientes')
+                ->onDelete('cascade');
         });
     }
 

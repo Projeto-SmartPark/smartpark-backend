@@ -2,18 +2,20 @@
 
 namespace App\Modules\Veiculo;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Usuarios\Models\Cliente;
+use Illuminate\Database\Eloquent\Model;
 
 class Veiculo extends Model
 {
     protected $table = 'veiculos';
+
     protected $primaryKey = 'id_veiculo';
+
     public $timestamps = false;
 
     protected $fillable = [
         'placa',
-        'cliente_id'
+        'cliente_id',
     ];
 
     /**

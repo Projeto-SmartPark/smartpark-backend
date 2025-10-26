@@ -2,13 +2,15 @@
 
 namespace App\Modules\Endereco;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Estacionamento\Estacionamento;
+use Illuminate\Database\Eloquent\Model;
 
 class Endereco extends Model
 {
     protected $table = 'enderecos';
+
     protected $primaryKey = 'id_endereco';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -21,12 +23,12 @@ class Endereco extends Model
         'complemento',
         'ponto_referencia',
         'latitude',
-        'longitude'
+        'longitude',
     ];
 
     protected $casts = [
         'latitude' => 'decimal:10',
-        'longitude' => 'decimal:10'
+        'longitude' => 'decimal:10',
     ];
 
     /**

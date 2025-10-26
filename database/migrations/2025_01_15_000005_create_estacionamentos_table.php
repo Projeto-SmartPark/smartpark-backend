@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('lotado', ['S', 'N'])->default('N');
             $table->unsignedBigInteger('gestor_id');
             $table->unsignedBigInteger('endereco_id');
-            
+
             $table->foreign('gestor_id')->references('id_gestor')->on('gestores')->onDelete('cascade');
             $table->foreign('endereco_id')->references('id_endereco')->on('enderecos')->onDelete('cascade');
         });

@@ -19,9 +19,7 @@ class ClienteService
 
     /**
      * Cria um novo cliente
-     * 
-     * @param array $dados
-     * @return Cliente
+     *
      * @throws \Exception
      */
     public function criarCliente(array $dados): Cliente
@@ -34,7 +32,7 @@ class ClienteService
         try {
             // 1. Cria usuário base
             $usuarioId = DB::table('usuarios')->insertGetId(['perfil' => 'C']);
-            
+
             // 2. Cria cliente
             $cliente = Cliente::create([
                 'id_cliente' => $usuarioId,
@@ -42,10 +40,10 @@ class ClienteService
                 'email' => $dados['email'],
                 'senha' => $dados['senha'],
             ]);
-            
-            DB::commit();
-            return $cliente;
 
+            DB::commit();
+
+            return $cliente;
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -54,9 +52,7 @@ class ClienteService
 
     /**
      * Busca um cliente por ID
-     * 
-     * @param int $id
-     * @return Cliente
+     *
      * @throws ModelNotFoundException
      */
     public function buscarPorId(int $id): Cliente
@@ -66,10 +62,7 @@ class ClienteService
 
     /**
      * Atualiza os dados de um cliente
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Cliente
+     *
      * @throws \Exception
      */
     public function atualizar(int $id, array $dados): Cliente
@@ -86,9 +79,6 @@ class ClienteService
 
     /**
      * Remove um cliente
-     * 
-     * @param int $id
-     * @return bool
      */
     public function remover(int $id): bool
     {
@@ -97,22 +87,20 @@ class ClienteService
 
     /**
      * Valida se o email já está sendo usado por outro cliente
-     * 
-     * @param string $email
-     * @param int|null $idExcluir
+     *
      * @throws \Exception
      */
     private function validarEmailUnico(string $email, ?int $idExcluir = null): void
     {
         $query = Cliente::where('email', $email);
-        
+
         if ($idExcluir !== null) {
             $query->where('id_cliente', '!=', $idExcluir);
         }
 
         if ($query->exists()) {
-            throw new \Exception($idExcluir === null 
-                ? 'Já existe um cliente com este email.' 
+            throw new \Exception($idExcluir === null
+                ? 'Já existe um cliente com este email.'
                 : 'Já existe outro cliente com este email.');
         }
     }

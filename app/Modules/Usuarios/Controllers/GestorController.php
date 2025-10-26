@@ -3,11 +3,11 @@
 namespace App\Modules\Usuarios\Controllers;
 
 use App\Modules\Usuarios\Services\GestorService;
-use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Throwable;
 
 class GestorController extends Controller
@@ -25,12 +25,16 @@ class GestorController extends Controller
      *     tags={"Gestores"},
      *     summary="Lista todos os gestores",
      *     description="Retorna uma lista com todos os gestores cadastrados no sistema",
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Lista de gestores retornada com sucesso",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="id_gestor", type="integer", example=1),
      *                 @OA\Property(property="nome", type="string", example="Maria Santos"),
      *                 @OA\Property(property="email", type="string", example="maria@empresa.com"),
@@ -44,6 +48,7 @@ class GestorController extends Controller
     public function index(): JsonResponse
     {
         $gestores = $this->gestorService->listarTodos();
+
         return response()->json($gestores);
     }
 
@@ -53,20 +58,26 @@ class GestorController extends Controller
      *     tags={"Gestores"},
      *     summary="Cadastra um novo gestor",
      *     description="Cria um novo gestor no sistema",
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"nome", "email", "senha", "cnpj"},
+     *
      *             @OA\Property(property="nome", type="string", maxLength=100, example="Maria Santos"),
      *             @OA\Property(property="email", type="string", format="email", maxLength=100, example="maria@empresa.com"),
      *             @OA\Property(property="senha", type="string", maxLength=100, example="senha123"),
      *             @OA\Property(property="cnpj", type="string", maxLength=20, example="12345678000190", description="Apenas números")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Gestor criado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Gestor criado com sucesso."),
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="id_gestor", type="integer", example=1),
@@ -76,27 +87,36 @@ class GestorController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=409,
      *         description="Email já cadastrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Email já cadastrado."),
      *             @OA\Property(property="message", type="string", example="Já existe um gestor com este email.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Dados inválidos."),
      *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro no servidor."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -106,10 +126,10 @@ class GestorController extends Controller
     public function store(Request $request): JsonResponse
     {
         $dados = $request->validate([
-            'nome'  => 'required|string|max:100',
+            'nome' => 'required|string|max:100',
             'email' => 'required|email|max:100',
             'senha' => 'required|string|max:100',
-            'cnpj'  => 'required|string|max:20',
+            'cnpj' => 'required|string|max:20',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.string' => 'O campo nome deve ser um texto.',
@@ -130,18 +150,17 @@ class GestorController extends Controller
 
             return response()->json([
                 'message' => 'Gestor criado com sucesso.',
-                'data' => $gestor
+                'data' => $gestor,
             ], 201);
-
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Email já cadastrado.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 409);
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'Erro no servidor.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -152,17 +171,22 @@ class GestorController extends Controller
      *     tags={"Gestores"},
      *     summary="Exibe um gestor específico",
      *     description="Retorna os dados detalhados de um gestor pelo ID",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID do gestor",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Dados do gestor retornados com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_gestor", type="integer", example=1),
      *             @OA\Property(property="nome", type="string", example="Maria Santos"),
      *             @OA\Property(property="email", type="string", example="maria@empresa.com"),
@@ -170,10 +194,13 @@ class GestorController extends Controller
      *             @OA\Property(property="usuario_id", type="integer", example=2)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Gestor não encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Gestor não encontrado."),
      *             @OA\Property(property="message", type="string", example="O gestor com o ID informado não existe.")
      *         )
@@ -184,11 +211,12 @@ class GestorController extends Controller
     {
         try {
             $gestor = $this->gestorService->buscarPorId($id);
+
             return response()->json($gestor);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Gestor não encontrado.',
-                'message' => 'O gestor com o ID informado não existe.'
+                'message' => 'O gestor com o ID informado não existe.',
             ], 404);
         }
     }
@@ -199,59 +227,79 @@ class GestorController extends Controller
      *     tags={"Gestores"},
      *     summary="Atualiza dados de um gestor",
      *     description="Atualiza as informações de um gestor existente com validação de email único",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID do gestor",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"nome", "email", "senha", "cnpj"},
+     *
      *             @OA\Property(property="nome", type="string", maxLength=100, example="Maria Santos"),
      *             @OA\Property(property="email", type="string", format="email", maxLength=100, example="maria@empresa.com"),
      *             @OA\Property(property="senha", type="string", maxLength=100, example="novaSenha123"),
      *             @OA\Property(property="cnpj", type="string", maxLength=20, example="12345678000190", description="Apenas números")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Gestor atualizado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Gestor atualizado com sucesso.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Gestor não encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Gestor não encontrado."),
      *             @OA\Property(property="message", type="string", example="O gestor com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=409,
      *         description="Email já cadastrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Email já cadastrado."),
      *             @OA\Property(property="message", type="string", example="Já existe outro gestor com este email.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Dados inválidos."),
      *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao atualizar gestor."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -261,10 +309,10 @@ class GestorController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $dados = $request->validate([
-            'nome'  => 'required|string|max:100',
+            'nome' => 'required|string|max:100',
             'email' => 'required|email|max:100',
             'senha' => 'required|string|max:100',
-            'cnpj'  => 'required|string|max:20',
+            'cnpj' => 'required|string|max:20',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.string' => 'O campo nome deve ser um texto.',
@@ -284,23 +332,22 @@ class GestorController extends Controller
             $this->gestorService->atualizar($id, $dados);
 
             return response()->json([
-                'message' => 'Gestor atualizado com sucesso.'
+                'message' => 'Gestor atualizado com sucesso.',
             ]);
-
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Gestor não encontrado.',
-                'message' => 'O gestor com o ID informado não existe.'
+                'message' => 'O gestor com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Email já cadastrado.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 409);
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar gestor.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -311,32 +358,43 @@ class GestorController extends Controller
      *     tags={"Gestores"},
      *     summary="Remove um gestor",
      *     description="Deleta um gestor do sistema",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID do gestor",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Gestor removido com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Gestor removido com sucesso.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Gestor não encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Gestor não encontrado."),
      *             @OA\Property(property="message", type="string", example="O gestor com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro ao remover gestor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao remover gestor."),
      *             @OA\Property(property="message", type="string", example="Ocorreu um erro inesperado ao remover o gestor.")
      *         )
@@ -348,20 +406,19 @@ class GestorController extends Controller
         try {
             $gestor = $this->gestorService->buscarPorId($id);
             $this->gestorService->remover($id);
-            
-            return response()->json([
-                'message' => 'Gestor removido com sucesso.'
-            ]);
 
+            return response()->json([
+                'message' => 'Gestor removido com sucesso.',
+            ]);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Gestor não encontrado.',
-                'message' => 'O gestor com o ID informado não existe.'
+                'message' => 'O gestor com o ID informado não existe.',
             ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'Erro ao remover gestor.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

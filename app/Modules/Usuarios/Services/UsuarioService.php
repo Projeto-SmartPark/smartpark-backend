@@ -22,9 +22,7 @@ class UsuarioService
 
     /**
      * Cria um novo usuário (cliente ou gestor)
-     * 
-     * @param array $dados
-     * @return array
+     *
      * @throws \Exception
      */
     public function criarUsuario(array $dados): array
@@ -42,12 +40,11 @@ class UsuarioService
             $this->criarTipoEspecifico($dados, $usuarioId);
 
             DB::commit();
-            
+
             return [
                 'message' => 'Usuário criado com sucesso.',
-                'id_usuario' => $usuarioId
+                'id_usuario' => $usuarioId,
             ];
-
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -56,15 +53,12 @@ class UsuarioService
 
     /**
      * Busca um usuário por ID
-     * 
-     * @param int $id
-     * @return array|null
      */
     public function buscarPorId(int $id): ?array
     {
         $dadosUsuario = DB::table('usuarios')->where('id_usuario', $id)->first();
 
-        if (!$dadosUsuario) {
+        if (! $dadosUsuario) {
             return null;
         }
 
@@ -73,17 +67,14 @@ class UsuarioService
 
     /**
      * Atualiza um usuário (cliente ou gestor)
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return bool
+     *
      * @throws \Exception
      */
     public function atualizarUsuario(int $id, array $dados): bool
     {
         $dadosUsuario = DB::table('usuarios')->where('id_usuario', $id)->first();
 
-        if (!$dadosUsuario) {
+        if (! $dadosUsuario) {
             throw new \Exception('Usuário não encontrado.');
         }
 
@@ -94,8 +85,8 @@ class UsuarioService
             $this->atualizarTipoEspecifico($dadosUsuario->perfil, $id, $dados);
 
             DB::commit();
-            return true;
 
+            return true;
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -104,16 +95,14 @@ class UsuarioService
 
     /**
      * Remove um usuário
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws \Exception
      */
     public function remover(int $id): bool
     {
         $dadosUsuario = DB::table('usuarios')->where('id_usuario', $id)->first();
 
-        if (!$dadosUsuario) {
+        if (! $dadosUsuario) {
             throw new \Exception('Usuário não encontrado.');
         }
 
@@ -124,8 +113,8 @@ class UsuarioService
             DB::table('usuarios')->where('id_usuario', $id)->delete();
 
             DB::commit();
-            return true;
 
+            return true;
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -134,9 +123,7 @@ class UsuarioService
 
     /**
      * Valida se o email já está cadastrado
-     * 
-     * @param string $email
-     * @param string $perfil
+     *
      * @throws \Exception
      */
     private function validarEmailUnico(string $email, string $perfil): void
@@ -154,9 +141,6 @@ class UsuarioService
 
     /**
      * Cria o registro base na tabela usuarios
-     * 
-     * @param string $perfil
-     * @return int
      */
     private function criarUsuarioBase(string $perfil): int
     {
@@ -165,9 +149,6 @@ class UsuarioService
 
     /**
      * Cria o tipo específico (Cliente ou Gestor)
-     * 
-     * @param array $dados
-     * @param int $usuarioId
      */
     private function criarTipoEspecifico(array $dados, int $usuarioId): void
     {
@@ -186,14 +167,11 @@ class UsuarioService
                 'senha' => $dados['senha'],
                 'cnpj' => $dados['cnpj'] ?? '',
             ]);
-        } 
+        }
     }
 
     /**
      * Monta os dados completos do usuário
-     * 
-     * @param object $dadosUsuario
-     * @return array
      */
     private function montarDadosUsuario(object $dadosUsuario): array
     {
@@ -208,15 +186,12 @@ class UsuarioService
         return [
             'id_usuario' => $dadosUsuario->id_usuario,
             'perfil' => $dadosUsuario->perfil,
-            'dados' => $dados
+            'dados' => $dados,
         ];
     }
 
     /**
      * Remove o tipo específico (Cliente ou Gestor)
-     * 
-     * @param string $perfil
-     * @param int $usuarioId
      */
     private function removerTipoEspecifico(string $perfil, int $usuarioId): void
     {
@@ -229,18 +204,15 @@ class UsuarioService
 
     /**
      * Atualiza o tipo específico (Cliente ou Gestor)
-     * 
-     * @param string $perfil
-     * @param int $usuarioId
-     * @param array $dados
+     *
      * @throws \Exception
      */
     private function atualizarTipoEspecifico(string $perfil, int $usuarioId, array $dados): void
     {
         if ($perfil === 'C') {
             $cliente = Cliente::where('id_cliente', $usuarioId)->first();
-            
-            if (!$cliente) {
+
+            if (! $cliente) {
                 throw new \Exception('Cliente não encontrado.');
             }
 
@@ -256,11 +228,10 @@ class UsuarioService
                 'email' => $dados['email'],
                 'senha' => $dados['senha'],
             ]);
-
         } elseif ($perfil === 'G') {
             $gestor = Gestor::where('id_gestor', $usuarioId)->first();
-            
-            if (!$gestor) {
+
+            if (! $gestor) {
                 throw new \Exception('Gestor não encontrado.');
             }
 

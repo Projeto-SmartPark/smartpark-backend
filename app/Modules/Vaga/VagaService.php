@@ -16,9 +16,6 @@ class VagaService
 
     /**
      * Criar nova vaga
-     * 
-     * @param array $dados
-     * @return Vaga
      */
     public function criarVaga(array $dados): Vaga
     {
@@ -27,9 +24,7 @@ class VagaService
 
     /**
      * Buscar vaga por ID
-     * 
-     * @param int $id
-     * @return Vaga
+     *
      * @throws ModelNotFoundException
      */
     public function buscarVagaPorId(int $id): Vaga
@@ -39,29 +34,26 @@ class VagaService
 
     /**
      * Atualizar vaga
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Vaga
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarVaga(int $id, array $dados): Vaga
     {
         $vaga = $this->buscarVagaPorId($id);
         $vaga->update($dados);
+
         return $vaga;
     }
 
     /**
      * Deletar vaga
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarVaga(int $id): bool
     {
         $vaga = $this->buscarVagaPorId($id);
+
         return $vaga->delete();
     }
 }

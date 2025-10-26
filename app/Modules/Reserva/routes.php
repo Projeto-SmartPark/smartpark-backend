@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Reserva\ReservaController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('reservas')->group(function () {
     Route::get('/', [ReservaController::class, 'index']);

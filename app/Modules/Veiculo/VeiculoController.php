@@ -2,11 +2,11 @@
 
 namespace App\Modules\Veiculo;
 
-use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class VeiculoController extends Controller
 {
@@ -23,12 +23,16 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Lista todos os veículos",
      *     description="Retorna uma lista com todos os veículos cadastrados",
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Lista retornada com sucesso",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="id_veiculo", type="integer", example=1),
      *                 @OA\Property(property="placa", type="string", example="ABC1234"),
      *                 @OA\Property(property="cliente_id", type="integer", example=1)
@@ -40,6 +44,7 @@ class VeiculoController extends Controller
     public function index(): JsonResponse
     {
         $veiculos = $this->veiculoService->listarVeiculos();
+
         return response()->json($veiculos, 200);
     }
 
@@ -49,34 +54,46 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Cria um novo veículo",
      *     description="Cadastra um novo veículo no sistema",
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"placa", "cliente_id"},
+     *
      *             @OA\Property(property="placa", type="string", maxLength=10, example="ABC1234", description="Placa do veículo"),
      *             @OA\Property(property="cliente_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Veículo criado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Veículo criado com sucesso."),
      *             @OA\Property(property="data", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string"),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao criar veículo."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -100,14 +117,15 @@ class VeiculoController extends Controller
 
         try {
             $veiculo = $this->veiculoService->criarVeiculo($validated);
+
             return response()->json([
                 'message' => 'Veículo criado com sucesso.',
-                'data' => $veiculo
+                'data' => $veiculo,
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao criar veículo.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -118,26 +136,34 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Exibe um veículo específico",
      *     description="Retorna os dados de um veículo pelo ID",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID do veículo",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Veículo encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_veiculo", type="integer", example=1),
      *             @OA\Property(property="placa", type="string", example="ABC1234"),
      *             @OA\Property(property="cliente_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Veículo não encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Veículo não encontrado."),
      *             @OA\Property(property="message", type="string", example="O veículo com o ID informado não existe.")
      *         )
@@ -148,11 +174,12 @@ class VeiculoController extends Controller
     {
         try {
             $veiculo = $this->veiculoService->buscarVeiculoPorId($id);
+
             return response()->json($veiculo, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Veículo não encontrado.',
-                'message' => 'O veículo com o ID informado não existe.'
+                'message' => 'O veículo com o ID informado não existe.',
             ], 404);
         }
     }
@@ -163,49 +190,66 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Atualiza um veículo",
      *     description="Atualiza os dados de um veículo existente",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID do veículo",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"placa", "cliente_id"},
+     *
      *             @OA\Property(property="placa", type="string", maxLength=10, example="XYZ5678"),
      *             @OA\Property(property="cliente_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Veículo atualizado com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Veículo atualizado com sucesso."),
      *             @OA\Property(property="data", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Veículo não encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Veículo não encontrado."),
      *             @OA\Property(property="message", type="string", example="O veículo com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string"),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao atualizar veículo."),
      *             @OA\Property(property="message", type="string")
          )
@@ -215,7 +259,7 @@ class VeiculoController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'placa' => 'required|string|max:10|unique:veiculos,placa,' . $id . ',id_veiculo',
+            'placa' => 'required|string|max:10|unique:veiculos,placa,'.$id.',id_veiculo',
             'cliente_id' => 'required|integer|exists:clientes,id_cliente',
         ], [
             'placa.required' => 'O campo placa é obrigatório.',
@@ -229,19 +273,20 @@ class VeiculoController extends Controller
 
         try {
             $veiculo = $this->veiculoService->atualizarVeiculo($id, $validated);
+
             return response()->json([
                 'message' => 'Veículo atualizado com sucesso.',
-                'data' => $veiculo
+                'data' => $veiculo,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Veículo não encontrado.',
-                'message' => 'O veículo com o ID informado não existe.'
+                'message' => 'O veículo com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar veículo.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -252,32 +297,43 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Remove um veículo",
      *     description="Deleta um veículo do sistema",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID do veículo",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Veículo removido com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Veículo removido com sucesso.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Veículo não encontrado",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Veículo não encontrado."),
      *             @OA\Property(property="message", type="string", example="O veículo com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro ao remover",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao remover veículo."),
      *             @OA\Property(property="message", type="string")
          )
@@ -288,18 +344,19 @@ class VeiculoController extends Controller
     {
         try {
             $this->veiculoService->deletarVeiculo($id);
+
             return response()->json([
-                'message' => 'Veículo removido com sucesso.'
+                'message' => 'Veículo removido com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Veículo não encontrado.',
-                'message' => 'O veículo com o ID informado não existe.'
+                'message' => 'O veículo com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao remover veículo.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

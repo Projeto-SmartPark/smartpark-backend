@@ -5,7 +5,9 @@ namespace App\Modules\Usuarios\Models;
 class Gestor extends Usuario
 {
     protected $table = 'gestores';
+
     protected $primaryKey = 'id_gestor';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -30,10 +32,6 @@ class Gestor extends Usuario
 
     /**
      * Verifica se o email já existe em outro gestor
-     * 
-     * @param string $email
-     * @param int|null $idExcluir
-     * @return bool
      */
     public static function emailJaExiste(string $email, ?int $idExcluir = null): bool
     {
@@ -48,9 +46,6 @@ class Gestor extends Usuario
 
     /**
      * Busca gestor pelo email
-     * 
-     * @param string $email
-     * @return Gestor|null
      */
     public static function buscarPorEmail(string $email): ?Gestor
     {
@@ -59,9 +54,6 @@ class Gestor extends Usuario
 
     /**
      * Busca gestor pelo CNPJ
-     * 
-     * @param string $cnpj
-     * @return Gestor|null
      */
     public static function buscarPorCnpj(string $cnpj): ?Gestor
     {
@@ -70,8 +62,6 @@ class Gestor extends Usuario
 
     /**
      * Retorna o nome completo formatado
-     * 
-     * @return string
      */
     public function getNomeFormatado(): string
     {
@@ -80,12 +70,11 @@ class Gestor extends Usuario
 
     /**
      * Retorna o CNPJ formatado
-     * 
-     * @return string
      */
     public function getCnpjFormatado(): string
     {
         $cnpj = preg_replace('/\D/', '', $this->cnpj);
+
         return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cnpj);
     }
 }

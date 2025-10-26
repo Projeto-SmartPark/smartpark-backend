@@ -19,9 +19,7 @@ class GestorService
 
     /**
      * Cria um novo gestor
-     * 
-     * @param array $dados
-     * @return Gestor
+     *
      * @throws \Exception
      */
     public function criarGestor(array $dados): Gestor
@@ -34,7 +32,7 @@ class GestorService
         try {
             // 1. Cria usuário base
             $usuarioId = DB::table('usuarios')->insertGetId(['perfil' => 'G']);
-            
+
             // 2. Cria gestor
             $gestor = Gestor::create([
                 'id_gestor' => $usuarioId,
@@ -43,10 +41,10 @@ class GestorService
                 'senha' => $dados['senha'],
                 'cnpj' => $dados['cnpj'] ?? '',
             ]);
-            
-            DB::commit();
-            return $gestor;
 
+            DB::commit();
+
+            return $gestor;
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -55,9 +53,7 @@ class GestorService
 
     /**
      * Busca um gestor por ID
-     * 
-     * @param int $id
-     * @return Gestor
+     *
      * @throws ModelNotFoundException
      */
     public function buscarPorId(int $id): Gestor
@@ -67,10 +63,7 @@ class GestorService
 
     /**
      * Atualiza os dados de um gestor
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Gestor
+     *
      * @throws \Exception
      */
     public function atualizar(int $id, array $dados): Gestor
@@ -87,9 +80,6 @@ class GestorService
 
     /**
      * Remove um gestor
-     * 
-     * @param int $id
-     * @return bool
      */
     public function remover(int $id): bool
     {
@@ -98,22 +88,20 @@ class GestorService
 
     /**
      * Valida se o email já está sendo usado por outro gestor
-     * 
-     * @param string $email
-     * @param int|null $idExcluir
+     *
      * @throws \Exception
      */
     private function validarEmailUnico(string $email, ?int $idExcluir = null): void
     {
         $query = Gestor::where('email', $email);
-        
+
         if ($idExcluir !== null) {
             $query->where('id_gestor', '!=', $idExcluir);
         }
 
         if ($query->exists()) {
-            throw new \Exception($idExcluir === null 
-                ? 'Já existe um gestor com este email.' 
+            throw new \Exception($idExcluir === null
+                ? 'Já existe um gestor com este email.'
                 : 'Já existe outro gestor com este email.');
         }
     }

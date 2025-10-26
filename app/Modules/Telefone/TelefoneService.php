@@ -17,9 +17,6 @@ class TelefoneService
 
     /**
      * Criar novo telefone
-     * 
-     * @param array $dados
-     * @return Telefone
      */
     public function criarTelefone(array $dados): Telefone
     {
@@ -28,9 +25,7 @@ class TelefoneService
 
     /**
      * Buscar telefone por ID
-     * 
-     * @param int $id
-     * @return Telefone
+     *
      * @throws ModelNotFoundException
      */
     public function buscarTelefonePorId(int $id): Telefone
@@ -40,38 +35,31 @@ class TelefoneService
 
     /**
      * Atualizar telefone
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Telefone
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarTelefone(int $id, array $dados): Telefone
     {
         $telefone = $this->buscarTelefonePorId($id);
         $telefone->update($dados);
+
         return $telefone;
     }
 
     /**
      * Deletar telefone
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarTelefone(int $id): bool
     {
         $telefone = $this->buscarTelefonePorId($id);
+
         return $telefone->delete();
     }
 
     /**
      * Criar e vincular telefones a um estacionamento
-     * 
-     * @param int $estacionamentoId
-     * @param array $telefones
-     * @return array
      */
     public function vincularTelefonesAoEstacionamento(int $estacionamentoId, array $telefones): array
     {
@@ -84,7 +72,7 @@ class TelefoneService
             // Vincular na tabela de relacionamento
             DB::table('estacionamento_telefones')->insert([
                 'id_estacionamento' => $estacionamentoId,
-                'id_telefone' => $telefone->id_telefone
+                'id_telefone' => $telefone->id_telefone,
             ]);
         }
 
@@ -93,10 +81,6 @@ class TelefoneService
 
     /**
      * Atualizar telefones de um estacionamento
-     * 
-     * @param int $estacionamentoId
-     * @param array $telefones
-     * @return array
      */
     public function atualizarTelefonesDoEstacionamento(int $estacionamentoId, array $telefones): array
     {
@@ -121,9 +105,6 @@ class TelefoneService
 
     /**
      * Buscar telefones de um estacionamento
-     * 
-     * @param int $estacionamentoId
-     * @return array
      */
     public function buscarTelefonesDoEstacionamento(int $estacionamentoId): array
     {
@@ -137,9 +118,6 @@ class TelefoneService
 
     /**
      * Deletar telefones de um estacionamento
-     * 
-     * @param int $estacionamentoId
-     * @return bool
      */
     public function deletarTelefonesDoEstacionamento(int $estacionamentoId): bool
     {

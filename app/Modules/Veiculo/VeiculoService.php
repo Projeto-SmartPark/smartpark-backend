@@ -16,9 +16,6 @@ class VeiculoService
 
     /**
      * Criar novo veículo
-     * 
-     * @param array $dados
-     * @return Veiculo
      */
     public function criarVeiculo(array $dados): Veiculo
     {
@@ -27,9 +24,7 @@ class VeiculoService
 
     /**
      * Buscar veículo por ID
-     * 
-     * @param int $id
-     * @return Veiculo
+     *
      * @throws ModelNotFoundException
      */
     public function buscarVeiculoPorId(int $id): Veiculo
@@ -39,29 +34,26 @@ class VeiculoService
 
     /**
      * Atualizar veículo
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Veiculo
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarVeiculo(int $id, array $dados): Veiculo
     {
         $veiculo = $this->buscarVeiculoPorId($id);
         $veiculo->update($dados);
+
         return $veiculo;
     }
 
     /**
      * Deletar veículo
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarVeiculo(int $id): bool
     {
         $veiculo = $this->buscarVeiculoPorId($id);
+
         return $veiculo->delete();
     }
 }

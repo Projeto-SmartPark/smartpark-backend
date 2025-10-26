@@ -2,20 +2,22 @@
 
 namespace App\Modules\Vaga;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Estacionamento\Estacionamento;
+use Illuminate\Database\Eloquent\Model;
 
 class Vaga extends Model
 {
     protected $table = 'vagas';
+
     protected $primaryKey = 'id_vaga';
+
     public $timestamps = false;
 
     protected $fillable = [
         'identificacao',
         'tipo',
         'disponivel',
-        'estacionamento_id'
+        'estacionamento_id',
     ];
 
     /**

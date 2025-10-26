@@ -2,15 +2,17 @@
 
 namespace App\Modules\Reserva;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Usuarios\Models\Cliente;
-use App\Modules\Veiculo\Veiculo;
 use App\Modules\Vaga\Vaga;
+use App\Modules\Veiculo\Veiculo;
+use Illuminate\Database\Eloquent\Model;
 
 class Reserva extends Model
 {
     protected $table = 'reservas';
+
     protected $primaryKey = 'id_reserva';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -20,7 +22,7 @@ class Reserva extends Model
         'status',
         'cliente_id',
         'veiculo_id',
-        'vaga_id'
+        'vaga_id',
     ];
 
     /**

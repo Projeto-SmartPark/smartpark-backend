@@ -2,15 +2,17 @@
 
 namespace App\Modules\Estacionamento;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Modules\Usuarios\Models\Gestor;
 use App\Modules\Endereco\Endereco;
 use App\Modules\Telefone\Telefone;
+use App\Modules\Usuarios\Models\Gestor;
+use Illuminate\Database\Eloquent\Model;
 
 class Estacionamento extends Model
 {
     protected $table = 'estacionamentos';
+
     protected $primaryKey = 'id_estacionamento';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -20,11 +22,11 @@ class Estacionamento extends Model
         'hora_fechamento',
         'lotado',
         'gestor_id',
-        'endereco_id'
+        'endereco_id',
     ];
 
     protected $casts = [
-        'capacidade' => 'integer'
+        'capacidade' => 'integer',
     ];
 
     /**

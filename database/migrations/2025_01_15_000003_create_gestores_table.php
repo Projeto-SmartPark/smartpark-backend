@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('email', 120)->unique();
             $table->string('senha', 255);
             $table->char('cnpj', 14)->unique();
-            
+
             $table->foreign('id_gestor')
-                  ->references('id_usuario')
-                  ->on('usuarios')
-                  ->onDelete('cascade');
+                ->references('id_usuario')
+                ->on('usuarios')
+                ->onDelete('cascade');
         });
     }
 

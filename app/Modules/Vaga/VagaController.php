@@ -2,11 +2,11 @@
 
 namespace App\Modules\Vaga;
 
-use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class VagaController extends Controller
 {
@@ -23,12 +23,16 @@ class VagaController extends Controller
      *     tags={"Vagas"},
      *     summary="Lista todas as vagas",
      *     description="Retorna uma lista com todas as vagas cadastradas",
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Lista retornada com sucesso",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="id_vaga", type="integer", example=1),
      *                 @OA\Property(property="identificacao", type="string", example="A-101"),
      *                 @OA\Property(property="tipo", type="string", example="carro"),
@@ -42,6 +46,7 @@ class VagaController extends Controller
     public function index(): JsonResponse
     {
         $vagas = $this->vagaService->listarVagas();
+
         return response()->json($vagas, 200);
     }
 
@@ -51,36 +56,48 @@ class VagaController extends Controller
      *     tags={"Vagas"},
      *     summary="Cria uma nova vaga",
      *     description="Cadastra uma nova vaga no sistema",
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"identificacao", "tipo", "estacionamento_id"},
+     *
      *             @OA\Property(property="identificacao", type="string", maxLength=20, example="A-101", description="Identificação única da vaga"),
      *             @OA\Property(property="tipo", type="string", enum={"carro", "moto", "deficiente", "idoso", "eletrico", "outro"}, example="carro"),
      *             @OA\Property(property="disponivel", type="string", enum={"S", "N"}, example="S", description="S=Disponível, N=Ocupada"),
      *             @OA\Property(property="estacionamento_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Vaga criada com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Vaga criada com sucesso."),
      *             @OA\Property(property="data", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string"),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao criar vaga."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -109,14 +126,15 @@ class VagaController extends Controller
 
         try {
             $vaga = $this->vagaService->criarVaga($validated);
+
             return response()->json([
                 'message' => 'Vaga criada com sucesso.',
-                'data' => $vaga
+                'data' => $vaga,
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao criar vaga.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -127,17 +145,22 @@ class VagaController extends Controller
      *     tags={"Vagas"},
      *     summary="Exibe uma vaga específica",
      *     description="Retorna os dados de uma vaga pelo ID",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID da vaga",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Vaga encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_vaga", type="integer", example=1),
      *             @OA\Property(property="identificacao", type="string", example="A-101"),
      *             @OA\Property(property="tipo", type="string", example="carro"),
@@ -145,10 +168,13 @@ class VagaController extends Controller
      *             @OA\Property(property="estacionamento_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Vaga não encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Vaga não encontrada."),
      *             @OA\Property(property="message", type="string", example="A vaga com o ID informado não existe.")
      *         )
@@ -159,11 +185,12 @@ class VagaController extends Controller
     {
         try {
             $vaga = $this->vagaService->buscarVagaPorId($id);
+
             return response()->json($vaga, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Vaga não encontrada.',
-                'message' => 'A vaga com o ID informado não existe.'
+                'message' => 'A vaga com o ID informado não existe.',
             ], 404);
         }
     }
@@ -174,51 +201,68 @@ class VagaController extends Controller
      *     tags={"Vagas"},
      *     summary="Atualiza uma vaga",
      *     description="Atualiza os dados de uma vaga existente",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID da vaga",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"identificacao", "tipo", "estacionamento_id"},
+     *
      *             @OA\Property(property="identificacao", type="string", maxLength=20, example="A-102"),
      *             @OA\Property(property="tipo", type="string", enum={"carro", "moto", "deficiente", "idoso", "eletrico", "outro"}, example="moto"),
      *             @OA\Property(property="disponivel", type="string", enum={"S", "N"}, example="N"),
      *             @OA\Property(property="estacionamento_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Vaga atualizada com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Vaga atualizada com sucesso."),
      *             @OA\Property(property="data", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Vaga não encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Vaga não encontrada."),
      *             @OA\Property(property="message", type="string", example="A vaga com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string"),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao atualizar vaga."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -228,7 +272,7 @@ class VagaController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'identificacao' => 'required|string|max:20|unique:vagas,identificacao,' . $id . ',id_vaga',
+            'identificacao' => 'required|string|max:20|unique:vagas,identificacao,'.$id.',id_vaga',
             'tipo' => 'required|in:carro,moto,deficiente,idoso,eletrico,outro',
             'disponivel' => 'nullable|in:S,N',
             'estacionamento_id' => 'required|integer|exists:estacionamentos,id_estacionamento',
@@ -247,19 +291,20 @@ class VagaController extends Controller
 
         try {
             $vaga = $this->vagaService->atualizarVaga($id, $validated);
+
             return response()->json([
                 'message' => 'Vaga atualizada com sucesso.',
-                'data' => $vaga
+                'data' => $vaga,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Vaga não encontrada.',
-                'message' => 'A vaga com o ID informado não existe.'
+                'message' => 'A vaga com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar vaga.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -270,32 +315,43 @@ class VagaController extends Controller
      *     tags={"Vagas"},
      *     summary="Remove uma vaga",
      *     description="Deleta uma vaga do sistema",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID da vaga",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Vaga removida com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Vaga removida com sucesso.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Vaga não encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Vaga não encontrada."),
      *             @OA\Property(property="message", type="string", example="A vaga com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro ao remover",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao remover vaga."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -306,18 +362,19 @@ class VagaController extends Controller
     {
         try {
             $this->vagaService->deletarVaga($id);
+
             return response()->json([
-                'message' => 'Vaga removida com sucesso.'
+                'message' => 'Vaga removida com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Vaga não encontrada.',
-                'message' => 'A vaga com o ID informado não existe.'
+                'message' => 'A vaga com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao remover vaga.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

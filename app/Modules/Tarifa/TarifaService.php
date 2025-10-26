@@ -16,9 +16,6 @@ class TarifaService
 
     /**
      * Criar nova tarifa
-     * 
-     * @param array $dados
-     * @return Tarifa
      */
     public function criarTarifa(array $dados): Tarifa
     {
@@ -27,9 +24,7 @@ class TarifaService
 
     /**
      * Buscar tarifa por ID
-     * 
-     * @param int $id
-     * @return Tarifa
+     *
      * @throws ModelNotFoundException
      */
     public function buscarTarifaPorId(int $id): Tarifa
@@ -39,29 +34,26 @@ class TarifaService
 
     /**
      * Atualizar tarifa
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Tarifa
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarTarifa(int $id, array $dados): Tarifa
     {
         $tarifa = $this->buscarTarifaPorId($id);
         $tarifa->update($dados);
+
         return $tarifa;
     }
 
     /**
      * Deletar tarifa
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarTarifa(int $id): bool
     {
         $tarifa = $this->buscarTarifaPorId($id);
+
         return $tarifa->delete();
     }
 }

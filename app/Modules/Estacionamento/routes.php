@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Estacionamento\EstacionamentoController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('estacionamentos')->group(function () {
     Route::get('/', [EstacionamentoController::class, 'index']);

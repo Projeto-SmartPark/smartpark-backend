@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Telefone\TelefoneController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/telefones', [TelefoneController::class, 'index']);
 Route::get('/telefones/{id}', [TelefoneController::class, 'show']);

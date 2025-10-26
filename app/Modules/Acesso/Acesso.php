@@ -2,15 +2,17 @@
 
 namespace App\Modules\Acesso;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Modules\Veiculo\Veiculo;
-use App\Modules\Vaga\Vaga;
 use App\Modules\Clientes\Cliente;
+use App\Modules\Vaga\Vaga;
+use App\Modules\Veiculo\Veiculo;
+use Illuminate\Database\Eloquent\Model;
 
 class Acesso extends Model
 {
     protected $table = 'acessos';
+
     protected $primaryKey = 'id_acesso';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -20,11 +22,11 @@ class Acesso extends Model
         'valor_total',
         'veiculo_id',
         'vaga_id',
-        'cliente_id'
+        'cliente_id',
     ];
 
     protected $casts = [
-        'valor_total' => 'decimal:2'
+        'valor_total' => 'decimal:2',
     ];
 
     /**

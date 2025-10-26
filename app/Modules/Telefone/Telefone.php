@@ -2,18 +2,20 @@
 
 namespace App\Modules\Telefone;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Estacionamento\Estacionamento;
+use Illuminate\Database\Eloquent\Model;
 
 class Telefone extends Model
 {
     protected $table = 'telefones';
+
     protected $primaryKey = 'id_telefone';
+
     public $timestamps = false;
 
     protected $fillable = [
         'ddd',
-        'numero'
+        'numero',
     ];
 
     /**

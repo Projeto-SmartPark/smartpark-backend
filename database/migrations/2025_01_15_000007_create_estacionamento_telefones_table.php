@@ -14,20 +14,20 @@ return new class extends Migration
         Schema::create('estacionamento_telefones', function (Blueprint $table) {
             $table->unsignedBigInteger('id_estacionamento');
             $table->unsignedBigInteger('id_telefone');
-            
+
             $table->primary(['id_estacionamento', 'id_telefone']);
-            
+
             $table->foreign('id_estacionamento')
-                  ->references('id_estacionamento')
-                  ->on('estacionamentos')
-                  ->onDelete('cascade')
-                  ->onUpdate('cascade');
-                  
+                ->references('id_estacionamento')
+                ->on('estacionamentos')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
             $table->foreign('id_telefone')
-                  ->references('id_telefone')
-                  ->on('telefones')
-                  ->onDelete('cascade')
-                  ->onUpdate('cascade');
+                ->references('id_telefone')
+                ->on('telefones')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

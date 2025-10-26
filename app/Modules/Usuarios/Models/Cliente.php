@@ -5,7 +5,9 @@ namespace App\Modules\Usuarios\Models;
 class Cliente extends Usuario
 {
     protected $table = 'clientes';
+
     protected $primaryKey = 'id_cliente';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -29,10 +31,6 @@ class Cliente extends Usuario
 
     /**
      * Verifica se o email já existe em outro cliente
-     * 
-     * @param string $email
-     * @param int|null $idExcluir
-     * @return bool
      */
     public static function emailJaExiste(string $email, ?int $idExcluir = null): bool
     {
@@ -47,9 +45,6 @@ class Cliente extends Usuario
 
     /**
      * Busca cliente pelo email
-     * 
-     * @param string $email
-     * @return Cliente|null
      */
     public static function buscarPorEmail(string $email): ?Cliente
     {
@@ -58,8 +53,6 @@ class Cliente extends Usuario
 
     /**
      * Retorna o nome completo formatado
-     * 
-     * @return string
      */
     public function getNomeFormatado(): string
     {

@@ -2,15 +2,16 @@
 
 namespace App\Modules\Estacionamento;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Modules\Telefone\TelefoneService;
 use App\Modules\Endereco\EnderecoService;
+use App\Modules\Telefone\TelefoneService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class EstacionamentoService
 {
     private TelefoneService $telefoneService;
+
     private EnderecoService $enderecoService;
 
     public function __construct(TelefoneService $telefoneService, EnderecoService $enderecoService)
@@ -29,11 +30,7 @@ class EstacionamentoService
 
     /**
      * Criar novo estacionamento
-     * 
-     * @param array $dados
-     * @param array $dadosEndereco
-     * @param array $telefones
-     * @return Estacionamento
+     *
      * @throws \Exception
      */
     public function criarEstacionamento(array $dados, array $dadosEndereco, array $telefones): Estacionamento
@@ -43,15 +40,15 @@ class EstacionamentoService
         try {
             // 1. Cria endereço
             $endereco = $this->enderecoService->criarEndereco($dadosEndereco);
-            
+
             // 2. Adiciona endereco_id aos dados do estacionamento
             $dados['endereco_id'] = $endereco->id_endereco;
-            
+
             // 3. Cria estacionamento
             $estacionamento = Estacionamento::create($dados);
 
             // 4. Vincula telefones
-            if (!empty($telefones)) {
+            if (! empty($telefones)) {
                 $this->telefoneService->vincularTelefonesAoEstacionamento(
                     $estacionamento->id_estacionamento,
                     $telefones
@@ -59,8 +56,8 @@ class EstacionamentoService
             }
 
             DB::commit();
-            return $estacionamento->load(['telefones', 'endereco']);
 
+            return $estacionamento->load(['telefones', 'endereco']);
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -69,9 +66,7 @@ class EstacionamentoService
 
     /**
      * Buscar estacionamento por ID
-     * 
-     * @param int $id
-     * @return Estacionamento
+     *
      * @throws ModelNotFoundException
      */
     public function buscarEstacionamentoPorId(int $id): Estacionamento
@@ -81,12 +76,7 @@ class EstacionamentoService
 
     /**
      * Atualizar estacionamento
-     * 
-     * @param int $id
-     * @param array $dados
-     * @param array $dadosEndereco
-     * @param array $telefones
-     * @return Estacionamento
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarEstacionamento(int $id, array $dados, array $dadosEndereco, array $telefones): Estacionamento
@@ -95,23 +85,23 @@ class EstacionamentoService
 
         try {
             $estacionamento = Estacionamento::findOrFail($id);
-            
+
             // 1. Atualiza endereço
-            if (!empty($dadosEndereco)) {
+            if (! empty($dadosEndereco)) {
                 $this->enderecoService->atualizarEndereco($estacionamento->endereco_id, $dadosEndereco);
             }
-            
+
             // 2. Atualiza estacionamento (sem endereco_id nos dados)
             $estacionamento->update($dados);
 
             // 3. Atualiza telefones
-            if (!empty($telefones)) {
+            if (! empty($telefones)) {
                 $this->telefoneService->atualizarTelefonesDoEstacionamento($id, $telefones);
             }
 
             DB::commit();
-            return $estacionamento->load(['telefones', 'endereco']);
 
+            return $estacionamento->load(['telefones', 'endereco']);
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
@@ -120,9 +110,7 @@ class EstacionamentoService
 
     /**
      * Deletar estacionamento
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarEstacionamento(int $id): bool
@@ -139,8 +127,8 @@ class EstacionamentoService
             $result = $estacionamento->delete();
 
             DB::commit();
-            return $result;
 
+            return $result;
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;

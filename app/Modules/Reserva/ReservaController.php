@@ -2,11 +2,11 @@
 
 namespace App\Modules\Reserva;
 
-use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class ReservaController extends Controller
 {
@@ -23,12 +23,16 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Lista todas as reservas",
      *     description="Retorna uma lista com todas as reservas cadastradas",
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Lista retornada com sucesso",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="id_reserva", type="integer", example=1),
      *                 @OA\Property(property="data", type="string", format="date", example="2025-10-26"),
      *                 @OA\Property(property="hora_inicio", type="string", format="time", example="14:00:00"),
@@ -45,6 +49,7 @@ class ReservaController extends Controller
     public function index(): JsonResponse
     {
         $reservas = $this->reservaService->listarReservas();
+
         return response()->json($reservas, 200);
     }
 
@@ -54,10 +59,13 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Cria uma nova reserva",
      *     description="Cadastra uma nova reserva no sistema",
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"data", "hora_inicio", "hora_fim", "cliente_id", "veiculo_id", "vaga_id"},
+     *
      *             @OA\Property(property="data", type="string", format="date", example="2025-10-26"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="14:00:00"),
      *             @OA\Property(property="hora_fim", type="string", format="time", example="16:00:00"),
@@ -67,26 +75,35 @@ class ReservaController extends Controller
      *             @OA\Property(property="vaga_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Reserva criada com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Reserva criada com sucesso."),
      *             @OA\Property(property="data", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string"),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao criar reserva."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -124,14 +141,15 @@ class ReservaController extends Controller
 
         try {
             $reserva = $this->reservaService->criarReserva($validated);
+
             return response()->json([
                 'message' => 'Reserva criada com sucesso.',
-                'data' => $reserva
+                'data' => $reserva,
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao criar reserva.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -142,17 +160,22 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Exibe uma reserva específica",
      *     description="Retorna os dados de uma reserva pelo ID",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID da reserva",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Reserva encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="id_reserva", type="integer", example=1),
      *             @OA\Property(property="data", type="string", format="date", example="2025-10-26"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="14:00:00"),
@@ -163,10 +186,13 @@ class ReservaController extends Controller
      *             @OA\Property(property="vaga_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Reserva não encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Reserva não encontrada."),
      *             @OA\Property(property="message", type="string", example="A reserva com o ID informado não existe.")
      *         )
@@ -177,11 +203,12 @@ class ReservaController extends Controller
     {
         try {
             $reserva = $this->reservaService->buscarReservaPorId($id);
+
             return response()->json($reserva, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Reserva não encontrada.',
-                'message' => 'A reserva com o ID informado não existe.'
+                'message' => 'A reserva com o ID informado não existe.',
             ], 404);
         }
     }
@@ -192,17 +219,22 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Atualiza uma reserva",
      *     description="Atualiza os dados de uma reserva existente",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID da reserva",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"data", "hora_inicio", "hora_fim", "cliente_id", "veiculo_id", "vaga_id"},
+     *
      *             @OA\Property(property="data", type="string", format="date", example="2025-10-27"),
      *             @OA\Property(property="hora_inicio", type="string", format="time", example="15:00:00"),
      *             @OA\Property(property="hora_fim", type="string", format="time", example="17:00:00"),
@@ -212,34 +244,46 @@ class ReservaController extends Controller
      *             @OA\Property(property="vaga_id", type="integer", example=1)
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Reserva atualizada com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Reserva atualizada com sucesso."),
      *             @OA\Property(property="data", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Reserva não encontrada",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Reserva não encontrada."),
      *             @OA\Property(property="message", type="string", example="A reserva com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Dados inválidos",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string"),
      *             @OA\Property(property="errors", type="object")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro no servidor",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao atualizar reserva."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -277,19 +321,20 @@ class ReservaController extends Controller
 
         try {
             $reserva = $this->reservaService->atualizarReserva($id, $validated);
+
             return response()->json([
                 'message' => 'Reserva atualizada com sucesso.',
-                'data' => $reserva
+                'data' => $reserva,
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Reserva não encontrada.',
-                'message' => 'A reserva com o ID informado não existe.'
+                'message' => 'A reserva com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar reserva.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -300,32 +345,42 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Remove uma reserva",
      *     description="Deleta uma reserva do sistema",
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="ID da reserva",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Reserva removida com sucesso",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Reserva removida com sucesso.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=404,
      *         description="Reserva não encontrada",
+     *
      *         @OA\JsonContent(
              @OA\Property(property="error", type="string", example="Reserva não encontrada."),
      *             @OA\Property(property="message", type="string", example="A reserva com o ID informado não existe.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=500,
      *         description="Erro ao remover",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="error", type="string", example="Erro ao remover reserva."),
      *             @OA\Property(property="message", type="string")
      *         )
@@ -336,18 +391,19 @@ class ReservaController extends Controller
     {
         try {
             $this->reservaService->deletarReserva($id);
+
             return response()->json([
-                'message' => 'Reserva removida com sucesso.'
+                'message' => 'Reserva removida com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Reserva não encontrada.',
-                'message' => 'A reserva com o ID informado não existe.'
+                'message' => 'A reserva com o ID informado não existe.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao remover reserva.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

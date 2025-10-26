@@ -16,9 +16,6 @@ class ReservaService
 
     /**
      * Criar nova reserva
-     * 
-     * @param array $dados
-     * @return Reserva
      */
     public function criarReserva(array $dados): Reserva
     {
@@ -27,9 +24,7 @@ class ReservaService
 
     /**
      * Buscar reserva por ID
-     * 
-     * @param int $id
-     * @return Reserva
+     *
      * @throws ModelNotFoundException
      */
     public function buscarReservaPorId(int $id): Reserva
@@ -39,29 +34,26 @@ class ReservaService
 
     /**
      * Atualizar reserva
-     * 
-     * @param int $id
-     * @param array $dados
-     * @return Reserva
+     *
      * @throws ModelNotFoundException
      */
     public function atualizarReserva(int $id, array $dados): Reserva
     {
         $reserva = $this->buscarReservaPorId($id);
         $reserva->update($dados);
+
         return $reserva;
     }
 
     /**
      * Deletar reserva
-     * 
-     * @param int $id
-     * @return bool
+     *
      * @throws ModelNotFoundException
      */
     public function deletarReserva(int $id): bool
     {
         $reserva = $this->buscarReservaPorId($id);
+
         return $reserva->delete();
     }
 }

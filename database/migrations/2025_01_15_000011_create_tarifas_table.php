@@ -19,9 +19,9 @@ return new class extends Migration
             $table->unsignedBigInteger('estacionamento_id');
 
             $table->foreign('estacionamento_id')
-                  ->references('id_estacionamento')
-                  ->on('estacionamentos')
-                  ->onDelete('cascade');
+                ->references('id_estacionamento')
+                ->on('estacionamentos')
+                ->onDelete('cascade');
         });
     }
 

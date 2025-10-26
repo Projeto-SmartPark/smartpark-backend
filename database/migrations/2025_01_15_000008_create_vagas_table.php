@@ -17,12 +17,12 @@ return new class extends Migration
             $table->enum('tipo', ['carro', 'moto', 'deficiente', 'idoso', 'eletrico', 'outro']);
             $table->enum('disponivel', ['S', 'N'])->default('S');
             $table->unsignedBigInteger('estacionamento_id');
-            
+
             $table->foreign('estacionamento_id')
-                  ->references('id_estacionamento')
-                  ->on('estacionamentos')
-                  ->onDelete('cascade')
-                  ->onUpdate('cascade');
+                ->references('id_estacionamento')
+                ->on('estacionamentos')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

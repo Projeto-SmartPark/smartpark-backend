@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Vaga\VagaController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('vagas')->group(function () {
     Route::get('/', [VagaController::class, 'index']);

@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Acesso\AcessoController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('acessos')->group(function () {
     Route::get('/', [AcessoController::class, 'index']);
