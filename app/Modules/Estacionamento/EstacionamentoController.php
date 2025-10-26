@@ -22,7 +22,7 @@ class EstacionamentoController extends Controller
      *     path="/estacionamentos",
      *     tags={"Estacionamentos"},
      *     summary="Lista todos os estacionamentos",
-     *     description="Retorna uma lista com todos os estacionamentos cadastrados",
+     *     description="Retorna uma lista com todos os estacionamentos cadastrados, incluindo telefones e endereço",
      *     @OA\Response(
      *         response=200,
      *         description="Lista retornada com sucesso",
@@ -36,7 +36,28 @@ class EstacionamentoController extends Controller
      *                 @OA\Property(property="hora_fechamento", type="string", example="22:00:00"),
      *                 @OA\Property(property="lotado", type="string", example="N"),
      *                 @OA\Property(property="gestor_id", type="integer", example=1),
-     *                 @OA\Property(property="endereco_id", type="integer", example=1)
+     *                 @OA\Property(property="endereco_id", type="integer", example=1),
+     *                 @OA\Property(
+     *                     property="telefones",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         @OA\Property(property="id_telefone", type="integer", example=1),
+     *                         @OA\Property(property="ddd", type="string", example="11"),
+     *                         @OA\Property(property="numero", type="string", example="987654321")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="endereco",
+     *                     type="object",
+     *                     @OA\Property(property="id_endereco", type="integer", example=1),
+     *                     @OA\Property(property="cep", type="string", example="01310100"),
+     *                     @OA\Property(property="logradouro", type="string", example="Avenida Paulista"),
+     *                     @OA\Property(property="numero", type="string", example="1000"),
+     *                     @OA\Property(property="complemento", type="string", example="Sala 101"),
+     *                     @OA\Property(property="bairro", type="string", example="Bela Vista"),
+     *                     @OA\Property(property="cidade", type="string", example="São Paulo"),
+     *                     @OA\Property(property="estado", type="string", example="SP")
+     *                 )
      *             )
      *         )
      *     )
@@ -53,31 +74,43 @@ class EstacionamentoController extends Controller
      *     path="/estacionamentos",
      *     tags={"Estacionamentos"},
      *     summary="Cria um novo estacionamento",
-     *     description="Cadastra um novo estacionamento no sistema com telefones",
+     *     description="Cadastra um novo estacionamento no sistema com telefones e endereço (o endereço é criado automaticamente)",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco_id", "telefones"},
-             @OA\Property(property="nome", type="string", maxLength=100, example="Estacionamento Central"),
-             @OA\Property(property="capacidade", type="integer", example=100),
-             @OA\Property(property="hora_abertura", type="string", format="time", example="08:00:00"),
-             @OA\Property(property="hora_fechamento", type="string", format="time", example="22:00:00"),
-             @OA\Property(property="lotado", type="string", enum={"S", "N"}, example="N", description="S=Sim, N=Não"),
-             @OA\Property(property="gestor_id", type="integer", example=1),
-             @OA\Property(property="endereco_id", type="integer", example=1),
-             @OA\Property(
-                 property="telefones",
-                 type="array",
-                 description="Array de telefones (mínimo 1, máximo 2)",
-                 @OA\Items(
-                     type="object",
-                     required={"ddd", "numero"},
-                     @OA\Property(property="ddd", type="string", maxLength=2, example="11"),
-                     @OA\Property(property="numero", type="string", maxLength=9, example="987654321")
-                 )
-             )
-         )
-     ),
+     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco", "telefones"},
+     *             @OA\Property(property="nome", type="string", maxLength=100, example="Estacionamento Central"),
+     *             @OA\Property(property="capacidade", type="integer", example=100),
+     *             @OA\Property(property="hora_abertura", type="string", format="time", example="08:00:00"),
+     *             @OA\Property(property="hora_fechamento", type="string", format="time", example="22:00:00"),
+     *             @OA\Property(property="lotado", type="string", enum={"S", "N"}, example="N", description="S=Sim, N=Não"),
+     *             @OA\Property(property="gestor_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="endereco",
+     *                 type="object",
+     *                 description="Dados do endereço (será criado automaticamente para este estacionamento)",
+     *                 required={"cep", "logradouro", "numero", "bairro", "cidade", "estado"},
+     *                 @OA\Property(property="cep", type="string", maxLength=8, example="01310100"),
+     *                 @OA\Property(property="logradouro", type="string", maxLength=120, example="Avenida Paulista"),
+     *                 @OA\Property(property="numero", type="string", maxLength=10, example="1000"),
+     *                 @OA\Property(property="complemento", type="string", maxLength=100, example="Sala 101"),
+     *                 @OA\Property(property="bairro", type="string", maxLength=80, example="Bela Vista"),
+     *                 @OA\Property(property="cidade", type="string", maxLength=80, example="São Paulo"),
+     *                 @OA\Property(property="estado", type="string", maxLength=2, example="SP")
+     *             ),
+     *             @OA\Property(
+     *                 property="telefones",
+     *                 type="array",
+     *                 description="Array de telefones (mínimo 1, máximo 2)",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     required={"ddd", "numero"},
+     *                     @OA\Property(property="ddd", type="string", maxLength=2, example="11"),
+     *                     @OA\Property(property="numero", type="string", maxLength=9, example="987654321")
+     *                 )
+     *             )
+     *         )
+     *     ),
      @OA\Response(
          response=201,
          description="Estacionamento criado com sucesso",
@@ -107,13 +140,20 @@ class EstacionamentoController extends Controller
 public function store(Request $request): JsonResponse
 {
     $validated = $request->validate([
-        'nome' => 'required|string|max:100',
+        'nome' => 'required|string|max:100|unique:estacionamentos,nome',
         'capacidade' => 'required|integer|min:1',
         'hora_abertura' => 'required|date_format:H:i:s',
         'hora_fechamento' => 'required|date_format:H:i:s',
         'lotado' => 'nullable|in:S,N',
         'gestor_id' => 'required|integer|exists:gestores,id_gestor',
-        'endereco_id' => 'required|integer|exists:enderecos,id_endereco',
+        'endereco' => 'required|array',
+        'endereco.cep' => 'required|string|size:8',
+        'endereco.logradouro' => 'required|string|max:120',
+        'endereco.numero' => 'required|string|max:10',
+        'endereco.complemento' => 'nullable|string|max:100',
+        'endereco.bairro' => 'required|string|max:80',
+        'endereco.cidade' => 'required|string|max:80',
+        'endereco.estado' => 'required|string|size:2',
         'telefones' => 'required|array|min:1|max:2',
         'telefones.*.ddd' => 'required|string|size:2',
         'telefones.*.numero' => 'required|string|max:9',
@@ -121,6 +161,7 @@ public function store(Request $request): JsonResponse
         'nome.required' => 'O campo nome é obrigatório.',
         'nome.string' => 'O campo nome deve ser um texto.',
         'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+        'nome.unique' => 'Já existe um estacionamento com este nome.',
         'capacidade.required' => 'O campo capacidade é obrigatório.',
         'capacidade.integer' => 'O campo capacidade deve ser um número inteiro.',
         'capacidade.min' => 'O campo capacidade deve ser no mínimo 1.',
@@ -132,9 +173,21 @@ public function store(Request $request): JsonResponse
         'gestor_id.required' => 'O campo gestor é obrigatório.',
         'gestor_id.integer' => 'O campo gestor deve ser um número inteiro.',
         'gestor_id.exists' => 'O gestor informado não existe.',
-        'endereco_id.required' => 'O campo endereço é obrigatório.',
-        'endereco_id.integer' => 'O campo endereço deve ser um número inteiro.',
-        'endereco_id.exists' => 'O endereço informado não existe.',
+        'endereco.required' => 'O campo endereço é obrigatório.',
+        'endereco.array' => 'O endereço deve ser um objeto.',
+        'endereco.cep.required' => 'O CEP é obrigatório.',
+        'endereco.cep.size' => 'O CEP deve ter exatamente 8 caracteres.',
+        'endereco.logradouro.required' => 'O logradouro é obrigatório.',
+        'endereco.logradouro.max' => 'O logradouro não pode ter mais de 120 caracteres.',
+        'endereco.numero.required' => 'O número é obrigatório.',
+        'endereco.numero.max' => 'O número não pode ter mais de 10 caracteres.',
+        'endereco.complemento.max' => 'O complemento não pode ter mais de 100 caracteres.',
+        'endereco.bairro.required' => 'O bairro é obrigatório.',
+        'endereco.bairro.max' => 'O bairro não pode ter mais de 80 caracteres.',
+        'endereco.cidade.required' => 'A cidade é obrigatória.',
+        'endereco.cidade.max' => 'A cidade não pode ter mais de 80 caracteres.',
+        'endereco.estado.required' => 'O estado é obrigatório.',
+        'endereco.estado.size' => 'O estado deve ter exatamente 2 caracteres.',
         'telefones.required' => 'É obrigatório informar pelo menos um telefone.',
         'telefones.array' => 'Os telefones devem ser informados em formato de array.',
         'telefones.min' => 'É obrigatório informar pelo menos 1 telefone.',
@@ -149,9 +202,14 @@ public function store(Request $request): JsonResponse
 
     try {
         $telefones = $validated['telefones'];
+        $endereco = $validated['endereco'];
         unset($validated['telefones']);
+        unset($validated['endereco']);
         
-        $estacionamento = $this->estacionamentoService->criarEstacionamento($validated, $telefones);
+        // NÃO precisa mais da validação validarGestorEnderecoUnico aqui
+        // pois cada estacionamento tem seu próprio endereço único
+        
+        $estacionamento = $this->estacionamentoService->criarEstacionamento($validated, $endereco, $telefones);
         return response()->json([
             'message' => 'Estacionamento criado com sucesso.',
             'data' => $estacionamento
@@ -169,7 +227,7 @@ public function store(Request $request): JsonResponse
      *     path="/estacionamentos/{id}",
      *     tags={"Estacionamentos"},
      *     summary="Exibe um estacionamento específico",
-     *     description="Retorna os dados de um estacionamento pelo ID",
+     *     description="Retorna os dados de um estacionamento pelo ID, incluindo telefones e endereço",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -188,7 +246,28 @@ public function store(Request $request): JsonResponse
      *             @OA\Property(property="hora_fechamento", type="string", example="22:00:00"),
      *             @OA\Property(property="lotado", type="string", example="N"),
      *             @OA\Property(property="gestor_id", type="integer", example=1),
-     *             @OA\Property(property="endereco_id", type="integer", example=1)
+     *             @OA\Property(property="endereco_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="telefones",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id_telefone", type="integer", example=1),
+     *                     @OA\Property(property="ddd", type="string", example="11"),
+     *                     @OA\Property(property="numero", type="string", example="987654321")
+     *                 )
+     *             ),
+     *             @OA\Property(
+     *                 property="endereco",
+     *                 type="object",
+     *                 @OA\Property(property="id_endereco", type="integer", example=1),
+     *                 @OA\Property(property="cep", type="string", example="01310100"),
+     *                 @OA\Property(property="logradouro", type="string", example="Avenida Paulista"),
+     *                 @OA\Property(property="numero", type="string", example="1000"),
+     *                 @OA\Property(property="complemento", type="string", example="Sala 101"),
+     *                 @OA\Property(property="bairro", type="string", example="Bela Vista"),
+     *                 @OA\Property(property="cidade", type="string", example="São Paulo"),
+     *                 @OA\Property(property="estado", type="string", example="SP")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -219,7 +298,7 @@ public function store(Request $request): JsonResponse
      *     path="/estacionamentos/{id}",
      *     tags={"Estacionamentos"},
      *     summary="Atualiza um estacionamento",
-     *     description="Atualiza os dados de um estacionamento existente",
+     *     description="Atualiza os dados de um estacionamento existente (o endereço vinculado também é atualizado)",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -230,14 +309,26 @@ public function store(Request $request): JsonResponse
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco_id", "telefones"},
+     *             required={"nome", "capacidade", "hora_abertura", "hora_fechamento", "gestor_id", "endereco", "telefones"},
      *             @OA\Property(property="nome", type="string", maxLength=100, example="Estacionamento Central"),
      *             @OA\Property(property="capacidade", type="integer", example=100),
      *             @OA\Property(property="hora_abertura", type="string", format="time", example="08:00:00"),
      *             @OA\Property(property="hora_fechamento", type="string", format="time", example="22:00:00"),
      *             @OA\Property(property="lotado", type="string", enum={"S", "N"}, example="N"),
      *             @OA\Property(property="gestor_id", type="integer", example=1),
-     *             @OA\Property(property="endereco_id", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="endereco",
+     *                 type="object",
+     *                 description="Dados do endereço (o endereço existente será atualizado)",
+     *                 required={"cep", "logradouro", "numero", "bairro", "cidade", "estado"},
+     *                 @OA\Property(property="cep", type="string", maxLength=8, example="01310100"),
+     *                 @OA\Property(property="logradouro", type="string", maxLength=120, example="Avenida Paulista"),
+     *                 @OA\Property(property="numero", type="string", maxLength=10, example="1000"),
+     *                 @OA\Property(property="complemento", type="string", maxLength=100, example="Sala 101"),
+     *                 @OA\Property(property="bairro", type="string", maxLength=80, example="Bela Vista"),
+     *                 @OA\Property(property="cidade", type="string", maxLength=80, example="São Paulo"),
+     *                 @OA\Property(property="estado", type="string", maxLength=2, example="SP")
+     *             ),
      *             @OA\Property(
      *                 property="telefones",
      *                 type="array",
@@ -288,13 +379,20 @@ public function store(Request $request): JsonResponse
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'nome' => 'required|string|max:100',
+            'nome' => 'required|string|max:100|unique:estacionamentos,nome,' . $id . ',id_estacionamento',
             'capacidade' => 'required|integer|min:1',
             'hora_abertura' => 'required|date_format:H:i:s',
             'hora_fechamento' => 'required|date_format:H:i:s',
             'lotado' => 'nullable|in:S,N',
             'gestor_id' => 'required|integer|exists:gestores,id_gestor',
-            'endereco_id' => 'required|integer|exists:enderecos,id_endereco',
+            'endereco' => 'required|array',
+            'endereco.cep' => 'required|string|size:8',
+            'endereco.logradouro' => 'required|string|max:120',
+            'endereco.numero' => 'required|string|max:10',
+            'endereco.complemento' => 'nullable|string|max:100',
+            'endereco.bairro' => 'required|string|max:80',
+            'endereco.cidade' => 'required|string|max:80',
+            'endereco.estado' => 'required|string|size:2',
             'telefones' => 'required|array|min:1|max:2',
             'telefones.*.ddd' => 'required|string|size:2',
             'telefones.*.numero' => 'required|string|max:9',
@@ -302,6 +400,7 @@ public function store(Request $request): JsonResponse
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.string' => 'O campo nome deve ser um texto.',
             'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'nome.unique' => 'Já existe um estacionamento com este nome.',
             'capacidade.required' => 'O campo capacidade é obrigatório.',
             'capacidade.integer' => 'O campo capacidade deve ser um número inteiro.',
             'capacidade.min' => 'O campo capacidade deve ser no mínimo 1.',
@@ -313,9 +412,21 @@ public function store(Request $request): JsonResponse
             'gestor_id.required' => 'O campo gestor é obrigatório.',
             'gestor_id.integer' => 'O campo gestor deve ser um número inteiro.',
             'gestor_id.exists' => 'O gestor informado não existe.',
-            'endereco_id.required' => 'O campo endereço é obrigatório.',
-            'endereco_id.integer' => 'O campo endereço deve ser um número inteiro.',
-            'endereco_id.exists' => 'O endereço informado não existe.',
+            'endereco.required' => 'O campo endereço é obrigatório.',
+            'endereco.array' => 'O endereço deve ser um objeto.',
+            'endereco.cep.required' => 'O CEP é obrigatório.',
+            'endereco.cep.size' => 'O CEP deve ter exatamente 8 caracteres.',
+            'endereco.logradouro.required' => 'O logradouro é obrigatório.',
+            'endereco.logradouro.max' => 'O logradouro não pode ter mais de 120 caracteres.',
+            'endereco.numero.required' => 'O número é obrigatório.',
+            'endereco.numero.max' => 'O número não pode ter mais de 10 caracteres.',
+            'endereco.complemento.max' => 'O complemento não pode ter mais de 100 caracteres.',
+            'endereco.bairro.required' => 'O bairro é obrigatório.',
+            'endereco.bairro.max' => 'O bairro não pode ter mais de 80 caracteres.',
+            'endereco.cidade.required' => 'A cidade é obrigatória.',
+            'endereco.cidade.max' => 'A cidade não pode ter mais de 80 caracteres.',
+            'endereco.estado.required' => 'O estado é obrigatório.',
+            'endereco.estado.size' => 'O estado deve ter exatamente 2 caracteres.',
             'telefones.required' => 'É obrigatório informar pelo menos um telefone.',
             'telefones.array' => 'Os telefones devem ser informados em formato de array.',
             'telefones.min' => 'É obrigatório informar pelo menos 1 telefone.',
@@ -330,9 +441,11 @@ public function store(Request $request): JsonResponse
 
         try {
             $telefones = $validated['telefones'];
+            $endereco = $validated['endereco'];
             unset($validated['telefones']);
+            unset($validated['endereco']);
             
-            $estacionamento = $this->estacionamentoService->atualizarEstacionamento($id, $validated, $telefones);
+            $estacionamento = $this->estacionamentoService->atualizarEstacionamento($id, $validated, $endereco, $telefones);
             return response()->json([
                 'message' => 'Estacionamento atualizado com sucesso.',
                 'data' => $estacionamento

@@ -4,6 +4,8 @@ namespace App\Modules\Usuarios\Services;
 
 use App\Modules\Usuarios\Models\Cliente;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ClienteService
 {
@@ -13,6 +15,41 @@ class ClienteService
     public function listarTodos()
     {
         return Cliente::all();
+    }
+
+    /**
+     * Cria um novo cliente
+     * 
+     * @param array $dados
+     * @return Cliente
+     * @throws \Exception
+     */
+    public function criarCliente(array $dados): Cliente
+    {
+        // Valida se o email já está cadastrado
+        $this->validarEmailUnico($dados['email']);
+
+        DB::beginTransaction();
+
+        try {
+            // 1. Cria usuário base
+            $usuarioId = DB::table('usuarios')->insertGetId(['perfil' => 'C']);
+            
+            // 2. Cria cliente
+            $cliente = Cliente::create([
+                'id_cliente' => $usuarioId,
+                'nome' => $dados['nome'],
+                'email' => $dados['email'],
+                'senha' => $dados['senha'],
+            ]);
+            
+            DB::commit();
+            return $cliente;
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -62,17 +99,21 @@ class ClienteService
      * Valida se o email já está sendo usado por outro cliente
      * 
      * @param string $email
-     * @param int $idExcluir
+     * @param int|null $idExcluir
      * @throws \Exception
      */
-    private function validarEmailUnico(string $email, int $idExcluir): void
+    private function validarEmailUnico(string $email, ?int $idExcluir = null): void
     {
-        $existe = Cliente::where('email', $email)
-            ->where('id_cliente', '!=', $idExcluir)
-            ->exists();
+        $query = Cliente::where('email', $email);
+        
+        if ($idExcluir !== null) {
+            $query->where('id_cliente', '!=', $idExcluir);
+        }
 
-        if ($existe) {
-            throw new \Exception('Já existe outro cliente com este email.');
+        if ($query->exists()) {
+            throw new \Exception($idExcluir === null 
+                ? 'Já existe um cliente com este email.' 
+                : 'Já existe outro cliente com este email.');
         }
     }
 }

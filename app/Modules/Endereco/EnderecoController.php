@@ -89,9 +89,9 @@ class EnderecoController extends Controller
      *         response=201,
      *         description="Endereço criado com sucesso",
      *         @OA\JsonContent(
-                 @OA\Property(property="id", type="integer", example=1),
-                 @OA\Property(property="cep", type="string", example="12345678"),
-                 @OA\Property(property="estado", type="string", example="SP"),
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="cep", type="string", example="12345678"),
+     *             @OA\Property(property="estado", type="string", example="SP"),
      *             @OA\Property(property="cidade", type="string", example="São Paulo"),
      *             @OA\Property(property="bairro", type="string", example="Centro"),
      *             @OA\Property(property="numero", type="string", example="123"),
@@ -148,9 +148,15 @@ class EnderecoController extends Controller
 
         try {
             $endereco = $this->enderecoService->criarEndereco($validated);
-            return response()->json($endereco, 201);
+            return response()->json([
+                'message' => 'Endereço criado com sucesso.',
+                'data' => $endereco
+            ], 201);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Erro ao criar endereço'], 500);
+            return response()->json([
+                'error' => 'Erro ao criar endereço.',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -310,11 +316,20 @@ class EnderecoController extends Controller
 
         try {
             $endereco = $this->enderecoService->atualizarEndereco($id, $validated);
-            return response()->json($endereco, 200);
+            return response()->json([
+                'message' => 'Endereço atualizado com sucesso.',
+                'data' => $endereco
+            ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Endereço não encontrado'], 404);
+            return response()->json([
+                'error' => 'Endereço não encontrado.',
+                'message' => 'O endereço com o ID informado não existe.'
+            ], 404);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Erro ao atualizar endereço'], 500);
+            return response()->json([
+                'error' => 'Erro ao atualizar endereço.',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -356,11 +371,19 @@ class EnderecoController extends Controller
     {
         try {
             $this->enderecoService->deletarEndereco($id);
-            return response()->json(['message' => 'Endereço deletado com sucesso'], 200);
+            return response()->json([
+                'message' => 'Endereço deletado com sucesso.'
+            ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Endereço não encontrado'], 404);
+            return response()->json([
+                'error' => 'Endereço não encontrado.',
+                'message' => 'O endereço com o ID informado não existe.'
+            ], 404);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Erro ao deletar endereço'], 500);
+            return response()->json([
+                'error' => 'Erro ao deletar endereço.',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

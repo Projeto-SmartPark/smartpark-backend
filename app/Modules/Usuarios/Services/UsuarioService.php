@@ -27,7 +27,7 @@ class UsuarioService
      * @return array
      * @throws \Exception
      */
-    public function criar(array $dados): array
+    public function criarUsuario(array $dados): array
     {
         // Verifica se email já existe
         $this->validarEmailUnico($dados['email'], $dados['perfil']);
@@ -69,6 +69,37 @@ class UsuarioService
         }
 
         return $this->montarDadosUsuario($dadosUsuario);
+    }
+
+    /**
+     * Atualiza um usuário (cliente ou gestor)
+     * 
+     * @param int $id
+     * @param array $dados
+     * @return bool
+     * @throws \Exception
+     */
+    public function atualizarUsuario(int $id, array $dados): bool
+    {
+        $dadosUsuario = DB::table('usuarios')->where('id_usuario', $id)->first();
+
+        if (!$dadosUsuario) {
+            throw new \Exception('Usuário não encontrado.');
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Atualiza o tipo específico (Cliente ou Gestor)
+            $this->atualizarTipoEspecifico($dadosUsuario->perfil, $id, $dados);
+
+            DB::commit();
+            return true;
+
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -155,7 +186,7 @@ class UsuarioService
                 'senha' => $dados['senha'],
                 'cnpj' => $dados['cnpj'] ?? '',
             ]);
-        }
+        } 
     }
 
     /**
@@ -193,6 +224,59 @@ class UsuarioService
             Cliente::where('id_cliente', $usuarioId)->delete();
         } elseif ($perfil === 'G') {
             Gestor::where('id_gestor', $usuarioId)->delete();
+        }
+    }
+
+    /**
+     * Atualiza o tipo específico (Cliente ou Gestor)
+     * 
+     * @param string $perfil
+     * @param int $usuarioId
+     * @param array $dados
+     * @throws \Exception
+     */
+    private function atualizarTipoEspecifico(string $perfil, int $usuarioId, array $dados): void
+    {
+        if ($perfil === 'C') {
+            $cliente = Cliente::where('id_cliente', $usuarioId)->first();
+            
+            if (!$cliente) {
+                throw new \Exception('Cliente não encontrado.');
+            }
+
+            // Valida email único (exceto o próprio)
+            if (Cliente::where('email', $dados['email'])
+                ->where('id_cliente', '!=', $usuarioId)
+                ->exists()) {
+                throw new \Exception('Já existe outro cliente com este email.');
+            }
+
+            $cliente->update([
+                'nome' => $dados['nome'],
+                'email' => $dados['email'],
+                'senha' => $dados['senha'],
+            ]);
+
+        } elseif ($perfil === 'G') {
+            $gestor = Gestor::where('id_gestor', $usuarioId)->first();
+            
+            if (!$gestor) {
+                throw new \Exception('Gestor não encontrado.');
+            }
+
+            // Valida email único (exceto o próprio)
+            if (Gestor::where('email', $dados['email'])
+                ->where('id_gestor', '!=', $usuarioId)
+                ->exists()) {
+                throw new \Exception('Já existe outro gestor com este email.');
+            }
+
+            $gestor->update([
+                'nome' => $dados['nome'],
+                'email' => $dados['email'],
+                'senha' => $dados['senha'],
+                'cnpj' => $dados['cnpj'] ?? $gestor->cnpj,
+            ]);
         }
     }
 }

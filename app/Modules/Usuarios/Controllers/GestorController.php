@@ -7,7 +7,6 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Throwable;
 
@@ -46,6 +45,105 @@ class GestorController extends Controller
     {
         $gestores = $this->gestorService->listarTodos();
         return response()->json($gestores);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/gestores",
+     *     tags={"Gestores"},
+     *     summary="Cadastra um novo gestor",
+     *     description="Cria um novo gestor no sistema",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nome", "email", "senha", "cnpj"},
+     *             @OA\Property(property="nome", type="string", maxLength=100, example="Maria Santos"),
+     *             @OA\Property(property="email", type="string", format="email", maxLength=100, example="maria@empresa.com"),
+     *             @OA\Property(property="senha", type="string", maxLength=100, example="senha123"),
+     *             @OA\Property(property="cnpj", type="string", maxLength=20, example="12345678000190", description="Apenas números")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Gestor criado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Gestor criado com sucesso."),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id_gestor", type="integer", example=1),
+     *                 @OA\Property(property="nome", type="string", example="Maria Santos"),
+     *                 @OA\Property(property="email", type="string", example="maria@empresa.com"),
+     *                 @OA\Property(property="cnpj", type="string", example="12345678000190")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Email já cadastrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Email já cadastrado."),
+     *             @OA\Property(property="message", type="string", example="Já existe um gestor com este email.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Dados inválidos."),
+     *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Erro no servidor."),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'nome'  => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'senha' => 'required|string|max:100',
+            'cnpj'  => 'required|string|max:20',
+        ], [
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'email.required' => 'O campo email é obrigatório.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+            'senha.required' => 'O campo senha é obrigatório.',
+            'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
+            'cnpj.required' => 'O campo CNPJ é obrigatório.',
+            'cnpj.string' => 'O campo CNPJ deve ser um texto.',
+            'cnpj.max' => 'O campo CNPJ não pode ter mais de 20 caracteres.',
+        ]);
+
+        try {
+            $gestor = $this->gestorService->criarGestor($dados);
+
+            return response()->json([
+                'message' => 'Gestor criado com sucesso.',
+                'data' => $gestor
+            ], 201);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Email já cadastrado.',
+                'message' => $e->getMessage()
+            ], 409);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'Erro no servidor.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -162,27 +260,27 @@ class GestorController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        try {
-            $dados = $request->validate([
-                'nome'  => 'required|string|max:100',
-                'email' => 'required|email|max:100',
-                'senha' => 'required|string|max:100',
-                'cnpj'  => 'required|string|max:20',
-            ], [
-                'nome.required' => 'O campo nome é obrigatório.',
-                'nome.string' => 'O campo nome deve ser um texto.',
-                'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
-                'email.required' => 'O campo email é obrigatório.',
-                'email.email' => 'O campo email deve ser um endereço de email válido.',
-                'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
-                'senha.required' => 'O campo senha é obrigatório.',
-                'senha.string' => 'O campo senha deve ser um texto.',
-                'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
-                'cnpj.required' => 'O campo CNPJ é obrigatório.',
-                'cnpj.string' => 'O campo CNPJ deve ser um texto.',
-                'cnpj.max' => 'O campo CNPJ não pode ter mais de 20 caracteres.',
-            ]);
+        $dados = $request->validate([
+            'nome'  => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'senha' => 'required|string|max:100',
+            'cnpj'  => 'required|string|max:20',
+        ], [
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'email.required' => 'O campo email é obrigatório.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+            'senha.required' => 'O campo senha é obrigatório.',
+            'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
+            'cnpj.required' => 'O campo CNPJ é obrigatório.',
+            'cnpj.string' => 'O campo CNPJ deve ser um texto.',
+            'cnpj.max' => 'O campo CNPJ não pode ter mais de 20 caracteres.',
+        ]);
 
+        try {
             $this->gestorService->atualizar($id, $dados);
 
             return response()->json([
@@ -199,12 +297,6 @@ class GestorController extends Controller
                 'error' => 'Email já cadastrado.',
                 'message' => $e->getMessage()
             ], 409);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Dados inválidos.',
-                'message' => 'Os dados fornecidos não são válidos.',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar gestor.',

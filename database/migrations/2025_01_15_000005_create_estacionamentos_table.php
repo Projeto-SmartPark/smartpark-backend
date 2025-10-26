@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('estacionamentos', function (Blueprint $table) {
             $table->id('id_estacionamento');
-            $table->string('nome', 100);
+            $table->string('nome', 100)->unique();
             $table->integer('capacidade');
             $table->time('hora_abertura');
             $table->time('hora_fechamento');

@@ -7,7 +7,6 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Throwable;
 
@@ -44,6 +43,99 @@ class ClienteController extends Controller
     {
         $clientes = $this->clienteService->listarTodos();
         return response()->json($clientes);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/clientes",
+     *     tags={"Clientes"},
+     *     summary="Cadastra um novo cliente",
+     *     description="Cria um novo cliente no sistema",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nome", "email", "senha"},
+     *             @OA\Property(property="nome", type="string", maxLength=100, example="João Silva"),
+     *             @OA\Property(property="email", type="string", format="email", maxLength=100, example="joao@exemplo.com"),
+     *             @OA\Property(property="senha", type="string", maxLength=100, example="senha123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Cliente criado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Cliente criado com sucesso."),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id_cliente", type="integer", example=1),
+     *                 @OA\Property(property="nome", type="string", example="João Silva"),
+     *                 @OA\Property(property="email", type="string", example="joao@exemplo.com")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Email já cadastrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Email já cadastrado."),
+     *             @OA\Property(property="message", type="string", example="Já existe um cliente com este email.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Dados inválidos."),
+     *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Erro no servidor."),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'nome'  => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'senha' => 'required|string|max:100',
+        ], [
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'email.required' => 'O campo email é obrigatório.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+            'senha.required' => 'O campo senha é obrigatório.',
+            'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
+        ]);
+
+        try {
+            $cliente = $this->clienteService->criarCliente($dados);
+
+            return response()->json([
+                'message' => 'Cliente criado com sucesso.',
+                'data' => $cliente
+            ], 201);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Email já cadastrado.',
+                'message' => $e->getMessage()
+            ], 409);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'Erro no servidor.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -158,23 +250,23 @@ class ClienteController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        try {
-            $dados = $request->validate([
-                'nome'  => 'required|string|max:100',
-                'email' => 'required|email|max:100',
-                'senha' => 'required|string|max:100',
-            ], [
-                'nome.required' => 'O campo nome é obrigatório.',
-                'nome.string' => 'O campo nome deve ser um texto.',
-                'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
-                'email.required' => 'O campo email é obrigatório.',
-                'email.email' => 'O campo email deve ser um endereço de email válido.',
-                'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
-                'senha.required' => 'O campo senha é obrigatório.',
-                'senha.string' => 'O campo senha deve ser um texto.',
-                'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
-            ]);
+        $dados = $request->validate([
+            'nome'  => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'senha' => 'required|string|max:100',
+        ], [
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'email.required' => 'O campo email é obrigatório.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+            'senha.required' => 'O campo senha é obrigatório.',
+            'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
+        ]);
 
+        try {
             $this->clienteService->atualizar($id, $dados);
 
             return response()->json([
@@ -191,12 +283,6 @@ class ClienteController extends Controller
                 'error' => 'Email já cadastrado.',
                 'message' => $e->getMessage()
             ], 409);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Dados inválidos.',
-                'message' => 'Os dados fornecidos não são válidos.',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'Erro ao atualizar cliente.',

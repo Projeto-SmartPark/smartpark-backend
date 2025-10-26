@@ -6,7 +6,6 @@ use App\Modules\Usuarios\Services\UsuarioService;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Throwable;
 
@@ -93,39 +92,33 @@ class UsuariosController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        try {
-            $dados = $request->validate([
-                'perfil' => 'required|in:C,G',
-                'nome'   => 'required|string|max:100',
-                'email'  => 'required|email|max:100',
-                'senha'  => 'required|string|max:100',
-                'cnpj'   => 'nullable|string|max:20'
-            ], [
-                'perfil.required' => 'O campo perfil é obrigatório.',
-                'perfil.in' => 'O campo perfil deve ser C (Cliente) ou G (Gestor).',
-                'nome.required' => 'O campo nome é obrigatório.',
-                'nome.string' => 'O campo nome deve ser um texto.',
-                'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
-                'email.required' => 'O campo email é obrigatório.',
-                'email.email' => 'O campo email deve ser um endereço de email válido.',
-                'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
-                'senha.required' => 'O campo senha é obrigatório.',
-                'senha.string' => 'O campo senha deve ser um texto.',
-                'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
-                'cnpj.string' => 'O campo CNPJ deve ser um texto.',
-                'cnpj.max' => 'O campo CNPJ não pode ter mais de 20 caracteres.',
-            ]);
+        $dados = $request->validate([
+            'perfil' => 'required|in:C,G',
+            'nome'   => 'required|string|max:100',
+            'email'  => 'required|email|max:100',
+            'senha'  => 'required|string|max:100',
+            'cnpj'   => 'nullable|string|max:20'
+        ], [
+            'perfil.required' => 'O campo perfil é obrigatório.',
+            'perfil.in' => 'O campo perfil deve ser C (Cliente) ou G (Gestor).',
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'email.required' => 'O campo email é obrigatório.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+            'senha.required' => 'O campo senha é obrigatório.',
+            'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
+            'cnpj.string' => 'O campo CNPJ deve ser um texto.',
+            'cnpj.max' => 'O campo CNPJ não pode ter mais de 20 caracteres.',
+        ]);
 
-            $resultado = $this->usuarioService->criar($dados);
+        try {
+            $resultado = $this->usuarioService->criarUsuario($dados);
             
             return response()->json($resultado, 201);
 
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Dados inválidos.',
-                'message' => 'Os dados fornecidos não são válidos.',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Email já cadastrado.',
@@ -183,6 +176,119 @@ class UsuariosController extends Controller
         }
 
         return response()->json($usuario);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/usuarios/{id}",
+     *     tags={"Usuários"},
+     *     summary="Atualiza dados de um usuário",
+     *     description="Atualiza as informações de um cliente ou gestor existente com validação de email único",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do usuário",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nome", "email", "senha"},
+     *             @OA\Property(property="nome", type="string", maxLength=100, example="João Silva"),
+     *             @OA\Property(property="email", type="string", format="email", maxLength=100, example="joao@exemplo.com"),
+     *             @OA\Property(property="senha", type="string", maxLength=100, example="novaSenha123"),
+     *             @OA\Property(property="cnpj", type="string", maxLength=20, example="12345678000190", description="Apenas números. Obrigatório apenas para gestores")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuário atualizado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Usuário atualizado com sucesso.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Usuário não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Usuário não encontrado."),
+     *             @OA\Property(property="message", type="string", example="O usuário com o ID informado não existe.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Email já cadastrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Email já cadastrado."),
+     *             @OA\Property(property="message", type="string", example="Já existe outro usuário com este email.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Dados inválidos."),
+     *             @OA\Property(property="message", type="string", example="Os dados fornecidos não são válidos."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Erro ao atualizar usuário."),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $dados = $request->validate([
+            'nome'  => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'senha' => 'required|string|max:100',
+            'cnpj'  => 'nullable|string|max:20',
+        ], [
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
+            'email.required' => 'O campo email é obrigatório.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
+            'senha.required' => 'O campo senha é obrigatório.',
+            'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
+            'cnpj.string' => 'O campo CNPJ deve ser um texto.',
+            'cnpj.max' => 'O campo CNPJ não pode ter mais de 20 caracteres.',
+        ]);
+
+        try {
+            $this->usuarioService->atualizarUsuario($id, $dados);
+
+            return response()->json([
+                'message' => 'Usuário atualizado com sucesso.'
+            ]);
+
+        } catch (Exception $e) {
+            if (str_contains($e->getMessage(), 'não encontrado') || str_contains($e->getMessage(), 'não existe')) {
+                return response()->json([
+                    'error' => 'Usuário não encontrado.',
+                    'message' => $e->getMessage()
+                ], 404);
+            }
+
+            return response()->json([
+                'error' => 'Email já cadastrado.',
+                'message' => $e->getMessage()
+            ], 409);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'Erro ao atualizar usuário.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

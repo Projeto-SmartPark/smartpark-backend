@@ -57,6 +57,26 @@ namespace App\Docs;
  *     name="Vagas",
  *     description="Operações de gerenciamento de vagas de estacionamento"
  * )
+ * 
+ * @OA\Tag(
+ *     name="Veículos",
+ *     description="Operações de gerenciamento de veículos dos clientes"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Reservas",
+ *     description="Operações de gerenciamento de reservas de vagas"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Tarifas",
+ *     description="Operações de gerenciamento de tarifas de estacionamento"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Acessos",
+ *     description="Operações de gerenciamento de acessos ao estacionamento"
+ * )
  */
 class SwaggerInfo
 {
