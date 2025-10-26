@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
+use Exception;
 use Throwable;
 
 class UsuariosController extends Controller
@@ -125,7 +126,7 @@ class UsuariosController extends Controller
                 'message' => 'Os dados fornecidos não são válidos.',
                 'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'Email já cadastrado.',
                 'message' => $e->getMessage()
@@ -231,7 +232,7 @@ class UsuariosController extends Controller
                 'message' => 'Usuário removido com sucesso.'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'Usuário não encontrado.',
                 'message' => $e->getMessage()

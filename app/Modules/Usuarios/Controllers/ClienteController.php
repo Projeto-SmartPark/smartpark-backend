@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Exception;
 use Throwable;
 
 class ClienteController extends Controller
@@ -185,7 +186,7 @@ class ClienteController extends Controller
                 'error' => 'Cliente não encontrado.',
                 'message' => 'O cliente com o ID informado não existe.'
             ], 404);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'Email já cadastrado.',
                 'message' => $e->getMessage()
