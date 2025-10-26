@@ -123,18 +123,20 @@ class ClienteController extends Controller
     public function store(Request $request): JsonResponse
     {
         $dados = $request->validate([
-            'nome' => 'required|string|max:100',
+            'nome' => 'required|string|min:3|max:100',
             'email' => 'required|email|max:100',
-            'senha' => 'required|string|max:100',
+            'senha' => 'required|string|min:6|max:100',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.min' => 'O campo nome deve ter no mínimo 3 caracteres.',
             'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
             'email.required' => 'O campo email é obrigatório.',
             'email.email' => 'O campo email deve ser um endereço de email válido.',
             'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
             'senha.required' => 'O campo senha é obrigatório.',
             'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.min' => 'O campo senha deve ter no mínimo 6 caracteres.',
             'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
         ]);
 
@@ -300,18 +302,20 @@ class ClienteController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $dados = $request->validate([
-            'nome' => 'required|string|max:100',
+            'nome' => 'required|string|min:3|max:100',
             'email' => 'required|email|max:100',
-            'senha' => 'required|string|max:100',
+            'senha' => 'required|string|min:6|max:100',
         ], [
             'nome.required' => 'O campo nome é obrigatório.',
             'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.min' => 'O campo nome deve ter no mínimo 3 caracteres.',
             'nome.max' => 'O campo nome não pode ter mais de 100 caracteres.',
             'email.required' => 'O campo email é obrigatório.',
             'email.email' => 'O campo email deve ser um endereço de email válido.',
             'email.max' => 'O campo email não pode ter mais de 100 caracteres.',
             'senha.required' => 'O campo senha é obrigatório.',
             'senha.string' => 'O campo senha deve ser um texto.',
+            'senha.min' => 'O campo senha deve ter no mínimo 6 caracteres.',
             'senha.max' => 'O campo senha não pode ter mais de 100 caracteres.',
         ]);
 

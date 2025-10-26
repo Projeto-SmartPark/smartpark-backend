@@ -17,6 +17,7 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuariosController::class, 'index']);          // Listar todos
     Route::post('/', [UsuariosController::class, 'store']);         // Criar usuário
     Route::get('/{id}', [UsuariosController::class, 'show']);       // Mostrar usuário
+    Route::put('/{id}', [UsuariosController::class, 'update']);     // Atualizar usuário
     Route::delete('/{id}', [UsuariosController::class, 'destroy']); // Remover usuário
 });
 
