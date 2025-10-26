@@ -2,7 +2,7 @@
 
 use App\Modules\Endereco\Endereco;
 
-$parametros = require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'Datasets' . DIRECTORY_SEPARATOR . 'parametrosEnderecoService.php';
+$parametros = require dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'Datasets'.DIRECTORY_SEPARATOR.'parametrosEnderecoService.php';
 
 // ========== TESTES DE LISTAGEM (GET /enderecos) ==========
 
@@ -57,14 +57,14 @@ test('POST /api/enderecos rejeita dados inválidos', function () use ($parametro
 test('GET /api/enderecos/{id} busca endereço com sucesso', function () use ($parametros) {
     $endereco = Endereco::create($parametros['validos'][0]);
 
-    $resposta = $this->getJson('/api/enderecos/' . $endereco->id_endereco);
+    $resposta = $this->getJson('/api/enderecos/'.$endereco->id_endereco);
 
     $resposta->assertStatus(200)
         ->assertJsonPath('cep', $endereco->cep);
 });
 
 test('GET /api/enderecos/{id} retorna 404 para ID inexistente', function () use ($parametros) {
-    $resposta = $this->getJson('/api/enderecos/' . $parametros['ids']['inexistente']);
+    $resposta = $this->getJson('/api/enderecos/'.$parametros['ids']['inexistente']);
 
     $resposta->assertStatus(404);
 });
@@ -75,7 +75,7 @@ test('PUT /api/enderecos/{id} atualiza endereço com sucesso', function () use (
     $endereco = Endereco::create($parametros['validos'][0]);
     $dadosParaAtualizar = $parametros['validos'][1];
 
-    $resposta = $this->putJson('/api/enderecos/' . $endereco->id_endereco, $dadosParaAtualizar);
+    $resposta = $this->putJson('/api/enderecos/'.$endereco->id_endereco, $dadosParaAtualizar);
 
     $resposta->assertStatus(200)
         ->assertJsonPath('message', 'Endereço atualizado com sucesso.');
@@ -83,7 +83,7 @@ test('PUT /api/enderecos/{id} atualiza endereço com sucesso', function () use (
 });
 
 test('PUT /api/enderecos/{id} retorna 404 para ID inexistente', function () use ($parametros) {
-    $resposta = $this->putJson('/api/enderecos/' . $parametros['ids']['inexistente'], $parametros['validos'][0]);
+    $resposta = $this->putJson('/api/enderecos/'.$parametros['ids']['inexistente'], $parametros['validos'][0]);
 
     $resposta->assertStatus(404);
 });
@@ -92,7 +92,7 @@ test('PUT /api/enderecos/{id} rejeita dados inválidos', function () use ($param
     $endereco = Endereco::create($parametros['validos'][0]);
     $dadosInvalidos = array_merge($parametros['validos'][0], ['cep' => '123']);
 
-    $resposta = $this->putJson('/api/enderecos/' . $endereco->id_endereco, $dadosInvalidos);
+    $resposta = $this->putJson('/api/enderecos/'.$endereco->id_endereco, $dadosInvalidos);
 
     $resposta->assertStatus(422)->assertJsonValidationErrors('cep');
 });
@@ -102,7 +102,7 @@ test('PUT /api/enderecos/{id} rejeita dados inválidos', function () use ($param
 test('DELETE /api/enderecos/{id} remove endereço com sucesso', function () use ($parametros) {
     $endereco = Endereco::create($parametros['validos'][0]);
 
-    $resposta = $this->deleteJson('/api/enderecos/' . $endereco->id_endereco);
+    $resposta = $this->deleteJson('/api/enderecos/'.$endereco->id_endereco);
 
     $resposta->assertStatus(200)
         ->assertJsonPath('message', 'Endereço deletado com sucesso.');
@@ -110,7 +110,7 @@ test('DELETE /api/enderecos/{id} remove endereço com sucesso', function () use 
 });
 
 test('DELETE /api/enderecos/{id} retorna 404 para ID inexistente', function () use ($parametros) {
-    $resposta = $this->deleteJson('/api/enderecos/' . $parametros['ids']['inexistente']);
+    $resposta = $this->deleteJson('/api/enderecos/'.$parametros['ids']['inexistente']);
 
     $resposta->assertStatus(404);
 });

@@ -6,23 +6,23 @@ return [
     'validos' => [
         // Caso 1: Endereço completo em São Paulo
         [
-            'cep' => '01001000', 'estado' => 'SP', 'cidade' => 'São Paulo', 'bairro' => 'Sé', 'numero' => '1', 'logradouro' => 'Praça da Sé', 'complemento' => 'Lado A', 'ponto_referencia' => 'Em frente à Catedral', 'latitude' => -23.550520, 'longitude' => -46.633308
+            'cep' => '01001000', 'estado' => 'SP', 'cidade' => 'São Paulo', 'bairro' => 'Sé', 'numero' => '1', 'logradouro' => 'Praça da Sé', 'complemento' => 'Lado A', 'ponto_referencia' => 'Em frente à Catedral', 'latitude' => -23.550520, 'longitude' => -46.633308,
         ],
         // Caso 2: Endereço no Rio de Janeiro sem complemento
         [
-            'cep' => '20040030', 'estado' => 'RJ', 'cidade' => 'Rio de Janeiro', 'bairro' => 'Centro', 'numero' => '100', 'logradouro' => 'Avenida Rio Branco', 'complemento' => null, 'ponto_referencia' => null, 'latitude' => -22.9083, 'longitude' => -43.1772
+            'cep' => '20040030', 'estado' => 'RJ', 'cidade' => 'Rio de Janeiro', 'bairro' => 'Centro', 'numero' => '100', 'logradouro' => 'Avenida Rio Branco', 'complemento' => null, 'ponto_referencia' => null, 'latitude' => -22.9083, 'longitude' => -43.1772,
         ],
         // Caso 3: Endereço em Belo Horizonte com número composto
         [
-            'cep' => '30130000', 'estado' => 'MG', 'cidade' => 'Belo Horizonte', 'bairro' => 'Centro', 'numero' => '200B', 'logradouro' => 'Avenida Afonso Pena', 'complemento' => 'Bloco 2', 'ponto_referencia' => null, 'latitude' => -19.9167, 'longitude' => -43.9333
+            'cep' => '30130000', 'estado' => 'MG', 'cidade' => 'Belo Horizonte', 'bairro' => 'Centro', 'numero' => '200B', 'logradouro' => 'Avenida Afonso Pena', 'complemento' => 'Bloco 2', 'ponto_referencia' => null, 'latitude' => -19.9167, 'longitude' => -43.9333,
         ],
         // Caso 4: Endereço em Brasília sem número
         [
-            'cep' => '70150900', 'estado' => 'DF', 'cidade' => 'Brasília', 'bairro' => 'Zona Cívico-Administrativa', 'numero' => 'S/N', 'logradouro' => 'Praça dos Três Poderes', 'complemento' => null, 'ponto_referencia' => null, 'latitude' => -15.7998, 'longitude' => -47.8638
+            'cep' => '70150900', 'estado' => 'DF', 'cidade' => 'Brasília', 'bairro' => 'Zona Cívico-Administrativa', 'numero' => 'S/N', 'logradouro' => 'Praça dos Três Poderes', 'complemento' => null, 'ponto_referencia' => null, 'latitude' => -15.7998, 'longitude' => -47.8638,
         ],
         // Caso 5: Endereço em Salvador com todos os campos
         [
-            'cep' => '40026900', 'estado' => 'BA', 'cidade' => 'Salvador', 'bairro' => 'Centro Histórico', 'numero' => '30', 'logradouro' => 'Largo do Pelourinho', 'complemento' => 'Casa de Jorge Amado', 'ponto_referencia' => 'Próximo à Igreja', 'latitude' => -12.9711, 'longitude' => -38.5108
+            'cep' => '40026900', 'estado' => 'BA', 'cidade' => 'Salvador', 'bairro' => 'Centro Histórico', 'numero' => '30', 'logradouro' => 'Largo do Pelourinho', 'complemento' => 'Casa de Jorge Amado', 'ponto_referencia' => 'Próximo à Igreja', 'latitude' => -12.9711, 'longitude' => -38.5108,
         ],
     ],
     'invalidos' => [

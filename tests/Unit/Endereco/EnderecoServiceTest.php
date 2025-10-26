@@ -5,9 +5,9 @@ use App\Modules\Endereco\EnderecoService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 
-beforeEach(fn () => $this->service = new EnderecoService());
+beforeEach(fn () => $this->service = new EnderecoService);
 
-$parametros = require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'Datasets' . DIRECTORY_SEPARATOR . 'parametrosEnderecoService.php';
+$parametros = require dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'Datasets'.DIRECTORY_SEPARATOR.'parametrosEnderecoService.php';
 
 // ========== TESTES DE CRIAÇÃO (criarEndereco) ==========
 
@@ -46,7 +46,6 @@ test('criarEndereco - dados borda', function () use ($parametros) {
         }
     }
 });
-
 
 // ========== TESTES DE LISTAGEM (listarEnderecos) ==========
 
