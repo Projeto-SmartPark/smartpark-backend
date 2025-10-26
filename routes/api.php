@@ -25,3 +25,15 @@ require app_path('Modules/Telefone/routes.php');
 
 // Módulo de Vaga
 require app_path('Modules/Vaga/routes.php');
+
+// Módulo de Veículo
+require app_path('Modules/Veiculo/routes.php');
+
+// Módulo de Reserva
+require app_path('Modules/Reserva/routes.php');
+
+// Módulo de Tarifa
+require app_path('Modules/Tarifa/routes.php');
+
+// Módulo de Acesso
+require app_path('Modules/Acesso/routes.php');
