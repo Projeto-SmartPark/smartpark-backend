@@ -24,18 +24,6 @@ namespace App\Docs;
  * )
  *
  * @OA\Tag(
- *     name="Usuários",
- *     description="Operações gerais de usuários (clientes e gestores)"
- * )
- * @OA\Tag(
- *     name="Clientes",
- *     description="Operações específicas para clientes"
- * )
- * @OA\Tag(
- *     name="Gestores",
- *     description="Operações específicas para gestores de estacionamento"
- * )
- * @OA\Tag(
  *     name="Endereços",
  *     description="Operações de gerenciamento de endereços"
  * )
