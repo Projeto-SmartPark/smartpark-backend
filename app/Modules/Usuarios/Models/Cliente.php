@@ -8,6 +8,8 @@ class Cliente extends Usuario
 
     protected $primaryKey = 'id_cliente';
 
+     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

@@ -6,6 +6,7 @@ use App\Modules\Usuarios\Models\Cliente;
 use App\Modules\Usuarios\Models\Gestor;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use Illuminate\Support\Facades\Hash;
 
 class UsuarioService
 {
@@ -157,14 +158,14 @@ class UsuarioService
                 'id_cliente' => $usuarioId,
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
-                'senha' => $dados['senha'],
+                'senha' => Hash::make($dados['senha']),
             ]);
         } else {
             Gestor::create([
                 'id_gestor' => $usuarioId,
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
-                'senha' => $dados['senha'],
+                'senha' => Hash::make($dados['senha']),
                 'cnpj' => $dados['cnpj'] ?? '',
             ]);
         }
@@ -226,7 +227,7 @@ class UsuarioService
             $cliente->update([
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
-                'senha' => $dados['senha'],
+                'senha' => Hash::make($dados['senha']),
             ]);
         } elseif ($perfil === 'G') {
             $gestor = Gestor::where('id_gestor', $usuarioId)->first();
@@ -245,7 +246,7 @@ class UsuarioService
             $gestor->update([
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
-                'senha' => $dados['senha'],
+                'senha' => Hash::make($dados['senha']),
                 'cnpj' => $dados['cnpj'] ?? $gestor->cnpj,
             ]);
         }

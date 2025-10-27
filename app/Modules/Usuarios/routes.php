@@ -24,6 +24,7 @@ Route::prefix('usuarios')->group(function () {
 // CRUD específico de clientes
 Route::prefix('clientes')->group(function () {
     Route::get('/', [ClienteController::class, 'index']);           // Listar clientes
+     Route::post('/', [ClienteController::class, 'store']);          // Criar cliente
     Route::get('/{id}', [ClienteController::class, 'show']);        // Mostrar cliente
     Route::put('/{id}', [ClienteController::class, 'update']);      // Atualizar cliente
     Route::delete('/{id}', [ClienteController::class, 'destroy']);  // Remover cliente
@@ -32,6 +33,7 @@ Route::prefix('clientes')->group(function () {
 // CRUD específico de gestores
 Route::prefix('gestores')->group(function () {
     Route::get('/', [GestorController::class, 'index']);            // Listar gestores
+    Route::post('/', [GestorController::class, 'store']);           // Criar gestor
     Route::get('/{id}', [GestorController::class, 'show']);         // Mostrar gestor
     Route::put('/{id}', [GestorController::class, 'update']);       // Atualizar gestor
     Route::delete('/{id}', [GestorController::class, 'destroy']);   // Remover gestor

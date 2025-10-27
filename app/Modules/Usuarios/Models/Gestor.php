@@ -8,6 +8,8 @@ class Gestor extends Usuario
 
     protected $primaryKey = 'id_gestor';
 
+     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

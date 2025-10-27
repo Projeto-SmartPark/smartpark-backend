@@ -6,6 +6,7 @@ use App\Modules\Usuarios\Models\Gestor;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use Illuminate\Support\Facades\Hash;
 
 class GestorService
 {
@@ -38,7 +39,7 @@ class GestorService
                 'id_gestor' => $usuarioId,
                 'nome' => $dados['nome'],
                 'email' => $dados['email'],
-                'senha' => $dados['senha'],
+                'senha' => Hash::make($dados['senha']),
                 'cnpj' => $dados['cnpj'] ?? '',
             ]);
 
@@ -72,6 +73,9 @@ class GestorService
 
         // Valida se o email não está sendo usado por outro gestor
         $this->validarEmailUnico($dados['email'], $id);
+
+        // Criptografa a nova senha antes de salvar
+        $dados['senha'] = Hash::make($dados['senha']);
 
         $gestor->update($dados);
 
