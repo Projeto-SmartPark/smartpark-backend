@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('telefones', function (Blueprint $table) {
-            $table->id('id_telefone');
-            $table->string('ddd', 2);
-            $table->string('numero', 9);
+        Schema::create('usuarios', function (Blueprint $table) {
+            $table->id('id_usuario');
+            $table->enum('perfil', ['C', 'G']);
         });
     }
 
@@ -23,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('telefones');
+        Schema::dropIfExists('usuarios');
     }
 };

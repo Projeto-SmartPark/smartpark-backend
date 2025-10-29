@@ -18,11 +18,18 @@ namespace App\Docs;
  *     url="http://127.0.0.1:8000/api",
  *     description="Servidor Local de Desenvolvimento"
  * )
- * @OA\Server(
- *     url="https://api.smartpark.com/api",
- *     description="Servidor de Produção"
+ * @OA\Tag(
+ *     name="Usuários",
+ *     description="Operações de gerenciamento de usuários, clientes e gestores"
  * )
- *
+ * @OA\Tag(
+ *     name="Clientes",
+ *     description="Operações de gerenciamento de clientes"
+ * )
+ * @OA\Tag(
+ *     name="Gestores",
+ *     description="Operações de gerenciamento de gestores"
+ * )
  * @OA\Tag(
  *     name="Endereços",
  *     description="Operações de gerenciamento de endereços"

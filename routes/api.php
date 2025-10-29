@@ -11,6 +11,9 @@
  * 2. Registre-o aqui usando require
  */
 
+// Módulo de Usuários
+require app_path('Modules/Usuarios/routes.php');
+
 // Módulo de Endereço
 require app_path('Modules/Endereco/routes.php');
 
