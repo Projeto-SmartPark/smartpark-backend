@@ -18,6 +18,7 @@ namespace App\Docs;
  *     url="http://127.0.0.1:8000/api",
  *     description="Servidor Local de Desenvolvimento"
  * )
+ *
  * @OA\Tag(
  *     name="Usuários",
  *     description="Operações de gerenciamento de usuários, clientes e gestores"

@@ -39,17 +39,54 @@ class MergeSwaggerDocs
             throw new \Exception('❌ Erro ao decodificar um dos arquivos JSON (Auth ou Backend).');
         }
 
-        // --- Combinação das rotas (paths) ---
-        $rotasCombinadas = array_merge(
-            $documentacaoAuth['paths'] ?? [],
-            $documentacaoBackend['paths'] ?? []
-        );
+        // --- Combinação das rotas (paths) com servidores automáticos ---
+        $rotasCombinadas = [];
 
-        // --- Combinação das tags, priorizando Autenticação e Usuários ---
-        $todasAsTags = array_merge(
+        // Rotas do AUTH → servidor 9000
+        foreach ($documentacaoAuth['paths'] ?? [] as $rota => $definicao) {
+            // ✅ Garante que o prefixo /api exista nas rotas do AUTH
+            $rotaCorrigida = str_starts_with($rota, '/api/') ? $rota : '/api'.$rota;
+
+            foreach ($definicao as &$metodo) {
+                $metodo['servers'] = [[
+                    'url' => env('AUTH_SERVICE_URL', 'http://127.0.0.1:9000/api'),
+                    'description' => 'Serviço de Autenticação (JWT)',
+                ]];
+            }
+
+            $rotasCombinadas[$rotaCorrigida] = $definicao;
+        }
+
+        // Rotas do BACKEND → servidor 8000
+        foreach ($documentacaoBackend['paths'] ?? [] as $rota => $definicao) {
+            // ✅ Garante que o prefixo /api exista também no backend
+            $rotaCorrigida = str_starts_with($rota, '/api/') ? $rota : '/api'.$rota;
+
+            foreach ($definicao as &$metodo) {
+                $metodo['servers'] = [[
+                    'url' => env('APP_URL', 'http://127.0.0.1:8000/api'),
+                    'description' => 'SmartPark Backend (API principal)',
+                ]];
+            }
+
+            $rotasCombinadas[$rotaCorrigida] = $definicao;
+        }
+
+        // --- Combinação das tags (sem sobrescrever) ---
+        $todasAsTags = [];
+        $origensTags = [
             $documentacaoAuth['tags'] ?? [],
-            $documentacaoBackend['tags'] ?? []
-        );
+            $documentacaoBackend['tags'] ?? [],
+        ];
+
+        foreach ($origensTags as $lista) {
+            foreach ($lista as $tag) {
+                $nome = $tag['name'] ?? null;
+                if ($nome && ! collect($todasAsTags)->contains(fn ($t) => $t['name'] === $nome)) {
+                    $todasAsTags[] = $tag;
+                }
+            }
+        }
 
         // Reordena para garantir que “Autenticação” e “Usuários” fiquem no topo
         usort($todasAsTags, function ($tagA, $tagB) {
@@ -64,7 +101,7 @@ class MergeSwaggerDocs
             return $ordemA <=> $ordemB;
         });
 
-        // --- Combinação dos componentes (schemas) ---
+        // --- Combinação dos components (schemas) ---
         $schemasCombinados = array_merge(
             $documentacaoAuth['components']['schemas'] ?? [],
             $documentacaoBackend['components']['schemas'] ?? []
@@ -76,6 +113,18 @@ class MergeSwaggerDocs
         $documentacaoFinal['tags'] = $todasAsTags;
         $documentacaoFinal['components']['schemas'] = $schemasCombinados;
 
+        // --- Define os servidores base globais ---
+        $documentacaoFinal['servers'] = [
+            [
+                'url' => env('APP_URL', 'http://127.0.0.1:8000/api'),
+                'description' => 'SmartPark Backend (API principal)',
+            ],
+            [
+                'url' => env('AUTH_SERVICE_URL', 'http://127.0.0.1:9000/api'),
+                'description' => 'Serviço de Autenticação (JWT)',
+            ],
+        ];
+
         // --- Geração do arquivo final ---
         file_put_contents(
             $caminhoJsonFinal,
@@ -83,7 +132,7 @@ class MergeSwaggerDocs
         );
 
         echo "\n✅ Documentação unificada gerada com sucesso!\n";
-        echo "📂 Caminho do arquivo final: {$caminhoJsonFinal}\n";
-        echo "💡 Ordem de exibição: Autenticação → Usuários → Demais módulos\n\n";
+        echo "💡 As rotas do AUTH usam automaticamente a porta 9000.\n";
+        echo "💡 As rotas do BACKEND usam automaticamente a porta 8000.\n";
     }
 }

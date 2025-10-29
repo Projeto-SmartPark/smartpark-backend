@@ -3,7 +3,12 @@
 use App\Modules\Telefone\TelefoneController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/telefones', [TelefoneController::class, 'index']);
-Route::get('/telefones/{id}', [TelefoneController::class, 'show']);
-Route::put('/telefones/{id}', [TelefoneController::class, 'update']);
-Route::delete('/telefones/{id}', [TelefoneController::class, 'destroy']);
+Route::prefix('telefones')
+    ->middleware('auth.microservico')
+    ->group(function () {
+        Route::get('/', [TelefoneController::class, 'index']);
+        Route::post('/', [TelefoneController::class, 'store']);
+        Route::get('/{id}', [TelefoneController::class, 'show']);
+        Route::put('/{id}', [TelefoneController::class, 'update']);
+        Route::delete('/{id}', [TelefoneController::class, 'destroy']);
+    });
