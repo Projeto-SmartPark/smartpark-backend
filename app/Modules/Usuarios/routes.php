@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * Rotas do Módulo de Usuários
  */
-
 Route::middleware('auth.microservico')->group(function () {
-
     // Usuários
     Route::prefix('usuarios')->group(function () {
         Route::get('/', [UsuariosController::class, 'index']);

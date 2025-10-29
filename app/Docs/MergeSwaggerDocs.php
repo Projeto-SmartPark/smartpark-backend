@@ -14,12 +14,12 @@ class MergeSwaggerDocs
         $authBase = base_path('../smartpark-auth');
 
         $backendJson = storage_path("api-docs/{$docsFile}");
-        $authJson    = "{$authBase}/storage/api-docs/{$docsFile}";
-        $finalJson   = $backendJson;
+        $authJson = "{$authBase}/storage/api-docs/{$docsFile}";
+        $finalJson = $backendJson;
 
         // === 1. Gera documentação do AUTH ===
         echo "🔐 Gerando Swagger do Auth...\n";
-        if (!is_dir($authBase)) {
+        if (! is_dir($authBase)) {
             throw new \Exception("❌ Diretório do Auth não encontrado: {$authBase}");
         }
         chdir($authBase);
@@ -33,7 +33,7 @@ class MergeSwaggerDocs
         Artisan::call('l5-swagger:generate');
 
         // === 3. Valida existência dos JSONs ===
-        if (!file_exists($authJson) || !file_exists($backendJson)) {
+        if (! file_exists($authJson) || ! file_exists($backendJson)) {
             throw new \Exception("❌ Arquivo de documentação não encontrado.\nAuth: {$authJson}\nBackend: {$backendJson}");
         }
 
@@ -42,8 +42,8 @@ class MergeSwaggerDocs
         $auth = json_decode(file_get_contents($authJson), true);
         $backend = json_decode(file_get_contents($backendJson), true);
 
-        if (!$auth || !$backend) {
-            throw new \Exception("❌ Erro ao decodificar JSON de Auth ou Backend.");
+        if (! $auth || ! $backend) {
+            throw new \Exception('❌ Erro ao decodificar JSON de Auth ou Backend.');
         }
 
         // === 4. Combina rotas, tags e schemas ===
@@ -52,7 +52,7 @@ class MergeSwaggerDocs
 
         // AUTH → adiciona /api se necessário
         foreach ($auth['paths'] ?? [] as $rota => $def) {
-            $rotaCorrigida = str_starts_with($rota, '/api/') ? $rota : '/api' . $rota;
+            $rotaCorrigida = str_starts_with($rota, '/api/') ? $rota : '/api'.$rota;
             foreach ($def as &$m) {
                 $m['servers'] = [[
                     'url' => env('AUTH_SERVICE_URL', 'http://127.0.0.1:9000/api'),
@@ -64,7 +64,7 @@ class MergeSwaggerDocs
 
         // BACKEND → adiciona /api e remove duplicados antigos
         foreach ($backend['paths'] ?? [] as $rota => $def) {
-            $rotaCorrigida = str_starts_with($rota, '/api/') ? $rota : '/api' . $rota;
+            $rotaCorrigida = str_starts_with($rota, '/api/') ? $rota : '/api'.$rota;
 
             // 🔹 remove a versão antiga sem /api
             unset($final['paths'][$rota]);
