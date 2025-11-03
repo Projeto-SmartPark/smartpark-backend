@@ -101,7 +101,7 @@ class MergeSwaggerDocs
 
         // === 🔒 Define segurança global para rotas protegidas ===
         $final['security'] = [
-            ['bearerAuth' => []]
+            ['bearerAuth' => []],
         ];
 
         // Servidores globais

@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller;
 /**
  * @OA\Tag(
  *     name="Acessos",
- *     description="Gerenciamento de acessos ao estacionamento"
+ *     description="Operações de gerenciamento de acessos ao estacionamento"
  * )
  */
 class AcessoController extends Controller

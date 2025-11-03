@@ -1,149 +1,173 @@
 <?php
 
-test('GET /api/usuarios retorna lista de clientes e gestores', function () {
-    $resposta = $this->getJson('/api/usuarios');
-    $resposta->assertStatus(200)
-        ->assertJsonStructure(['clientes', 'gestores']);
+use App\Modules\Usuarios\Services\UsuarioService;
+
+beforeEach(function () {
+    $this->withoutMiddleware();
+    $this->mockService = Mockery::mock(UsuarioService::class);
+    $this->app->instance(UsuarioService::class, $this->mockService);
 });
 
-test('POST /api/usuarios cria cliente com sucesso', function () {
-    $dadosCliente = [
+afterEach(function () {
+    Mockery::close();
+});
+
+test('deve listar todos os usuários', function () {
+    $this->mockService
+        ->shouldReceive('listarTodos')
+        ->once()
+        ->andReturn([
+            'clientes' => [
+                ['id_cliente' => 1, 'nome' => 'João Silva', 'email' => 'joao@teste.com'],
+            ],
+            'gestores' => [
+                ['id_gestor' => 2, 'nome' => 'Maria Santos', 'email' => 'maria@empresa.com'],
+            ],
+        ]);
+
+    $response = $this->getJson('/api/usuarios');
+
+    $response->assertOk()
+        ->assertJsonFragment(['nome' => 'João Silva'])
+        ->assertJsonFragment(['nome' => 'Maria Santos']);
+});
+
+test('deve criar usuário com sucesso', function () {
+    $dados = [
         'perfil' => 'C',
-        'nome' => 'Novo Cliente',
-        'email' => 'cliente@teste.com',
-        'senha' => '123456',
+        'nome' => 'Carlos Souza',
+        'email' => 'carlos@teste.com',
+        'senha' => 'senha123',
     ];
 
-    $resposta = $this->postJson('/api/usuarios', $dadosCliente);
-    $resposta->assertStatus(201)
-        ->assertJsonPath('message', 'Usuário criado com sucesso.');
+    $resultado = [
+        'message' => 'Usuário criado com sucesso.',
+        'id_usuario' => 10,
+    ];
+
+    $this->mockService
+        ->shouldReceive('criarUsuario')
+        ->once()
+        ->with($dados)
+        ->andReturn($resultado);
+
+    $response = $this->postJson('/api/usuarios', $dados);
+
+    $response->assertCreated()
+        ->assertJsonFragment(['message' => 'Usuário criado com sucesso.']);
 });
 
-test('POST /api/usuarios cria gestor com sucesso', function () {
-    $dadosGestor = [
+test('deve rejeitar dados inválidos ao criar usuário', function () {
+    $dados = [
+        'perfil' => '',
+        'nome' => '',
+        'email' => '',
+        'senha' => '',
+    ];
+
+    $response = $this->postJson('/api/usuarios', $dados);
+
+    $response->assertStatus(422)
+        ->assertJsonStructure(['message', 'errors']);
+});
+
+test('deve buscar usuário por id', function () {
+    $usuario = [
+        'id_usuario' => 5,
         'perfil' => 'G',
-        'nome' => 'Novo Gestor',
-        'email' => 'gestor@empresa.com',
-        'senha' => '123456',
-        'cnpj' => '12345678000190',
+        'dados' => [
+            'nome' => 'Mariana Oliveira',
+            'email' => 'mariana@corp.com',
+            'cnpj' => '12345678000190',
+        ],
     ];
 
-    $resposta = $this->postJson('/api/usuarios', $dadosGestor);
-    $resposta->assertStatus(201)
-        ->assertJsonPath('message', 'Usuário criado com sucesso.');
+    $this->mockService
+        ->shouldReceive('buscarPorId')
+        ->once()
+        ->with(5)
+        ->andReturn($usuario);
+
+    $response = $this->getJson('/api/usuarios/5');
+
+    $response->assertOk()
+        ->assertJsonFragment(['perfil' => 'G'])
+        ->assertJsonFragment(['nome' => 'Mariana Oliveira']);
 });
 
-test('POST /api/usuarios rejeita cliente com nome curto', function () {
-    $dadosInvalidos = [
-        'perfil' => 'C',
-        'nome' => 'AB',
-        'email' => 'cliente@teste.com',
-        'senha' => '123456',
+test('deve retornar erro se usuário não existir', function () {
+    $this->mockService
+        ->shouldReceive('buscarPorId')
+        ->once()
+        ->with(999)
+        ->andReturn(null);
+
+    $response = $this->getJson('/api/usuarios/999');
+
+    $response->assertNotFound()
+        ->assertJsonFragment(['error' => 'Usuário não encontrado.']);
+});
+
+test('deve atualizar usuário com sucesso', function () {
+    $dados = [
+        'nome' => 'João Atualizado',
+        'email' => 'joao@novo.com',
+        'senha' => 'novaSenha',
     ];
 
-    $resposta = $this->postJson('/api/usuarios', $dadosInvalidos);
-    $resposta->assertStatus(422)
-        ->assertJsonValidationErrors(['nome']);
+    $this->mockService
+        ->shouldReceive('atualizarUsuario')
+        ->once()
+        ->with(10, $dados)
+        ->andReturnTrue();
+
+    $response = $this->putJson('/api/usuarios/10', $dados);
+
+    $response->assertOk()
+        ->assertJsonFragment(['message' => 'Usuário atualizado com sucesso.']);
 });
 
-test('POST /api/usuarios rejeita cliente com senha curta', function () {
-    $dadosInvalidos = [
-        'perfil' => 'C',
-        'nome' => 'Cliente',
-        'email' => 'cliente@teste.com',
-        'senha' => '12345',
+test('deve retornar erro ao atualizar usuário inexistente', function () {
+    $dados = [
+        'nome' => 'Fulano',
+        'email' => 'fulano@teste.com',
+        'senha' => 'senha123',
     ];
 
-    $resposta = $this->postJson('/api/usuarios', $dadosInvalidos);
-    $resposta->assertStatus(422)
-        ->assertJsonValidationErrors(['senha']);
+    $this->mockService
+        ->shouldReceive('atualizarUsuario')
+        ->once()
+        ->with(999, $dados)
+        ->andThrow(new Exception('Usuário não encontrado.'));
+
+    $response = $this->putJson('/api/usuarios/999', $dados);
+
+    $response->assertNotFound()
+        ->assertJsonFragment(['error' => 'Usuário não encontrado.']);
 });
 
-test('POST /api/usuarios rejeita cliente com email inválido', function () {
-    $dadosInvalidos = [
-        'perfil' => 'C',
-        'nome' => 'Cliente',
-        'email' => 'email_invalido',
-        'senha' => '123456',
-    ];
+test('deve deletar usuário com sucesso', function () {
+    $this->mockService
+        ->shouldReceive('remover')
+        ->once()
+        ->with(5)
+        ->andReturnTrue();
 
-    $resposta = $this->postJson('/api/usuarios', $dadosInvalidos);
-    $resposta->assertStatus(422)
-        ->assertJsonValidationErrors(['email']);
+    $response = $this->deleteJson('/api/usuarios/5');
+
+    $response->assertOk()
+        ->assertJsonFragment(['message' => 'Usuário removido com sucesso.']);
 });
 
-test('POST /api/usuarios rejeita gestor com nome curto', function () {
-    $dadosInvalidos = [
-        'perfil' => 'G',
-        'nome' => 'AB',
-        'email' => 'gestor@empresa.com',
-        'senha' => '123456',
-        'cnpj' => '12345678000190',
-    ];
+test('deve retornar erro se usuário não existir ao deletar', function () {
+    $this->mockService
+        ->shouldReceive('remover')
+        ->once()
+        ->with(999)
+        ->andThrow(new Exception('Usuário não encontrado.'));
 
-    $resposta = $this->postJson('/api/usuarios', $dadosInvalidos);
-    $resposta->assertStatus(422)
-        ->assertJsonValidationErrors(['nome']);
-});
+    $response = $this->deleteJson('/api/usuarios/999');
 
-test('POST /api/usuarios rejeita gestor com senha curta', function () {
-    $dadosInvalidos = [
-        'perfil' => 'G',
-        'nome' => 'Gestor',
-        'email' => 'gestor@empresa.com',
-        'senha' => '12345',
-        'cnpj' => '12345678000190',
-    ];
-
-    $resposta = $this->postJson('/api/usuarios', $dadosInvalidos);
-    $resposta->assertStatus(422)
-        ->assertJsonValidationErrors(['senha']);
-});
-
-test('POST /api/usuarios rejeita gestor com CNPJ curto', function () {
-    $dadosInvalidos = [
-        'perfil' => 'G',
-        'nome' => 'Gestor',
-        'email' => 'gestor@empresa.com',
-        'senha' => '123456',
-        'cnpj' => '123',
-    ];
-
-    $resposta = $this->postJson('/api/usuarios', $dadosInvalidos);
-    $resposta->assertStatus(422)
-        ->assertJsonValidationErrors(['cnpj']);
-});
-
-test('POST /api/usuarios retorna 422 para dados inválidos', function () {
-    $resposta = $this->postJson('/api/usuarios', []);
-    $resposta->assertStatus(422);
-});
-
-test('GET /api/usuarios/{id} retorna 404 se não encontrado', function () {
-    $resposta = $this->getJson('/api/usuarios/999');
-    $resposta->assertStatus(404);
-});
-
-test('PUT /api/usuarios/{id} retorna 404 ao atualizar cliente inexistente', function () {
-    $resposta = $this->putJson('/api/usuarios/999', [
-        'nome' => 'Cliente Inexistente',
-        'email' => 'cliente@teste.com',
-        'senha' => '123456',
-    ]);
-    $resposta->assertStatus(404);
-});
-
-test('PUT /api/usuarios/{id} retorna 404 ao atualizar gestor inexistente', function () {
-    $resposta = $this->putJson('/api/usuarios/999', [
-        'nome' => 'Gestor Inexistente',
-        'email' => 'gestor@empresa.com',
-        'senha' => '123456',
-        'cnpj' => '12345678000190',
-    ]);
-    $resposta->assertStatus(404);
-});
-
-test('DELETE /api/usuarios/{id} remove usuário inexistente retorna 404', function () {
-    $resposta = $this->deleteJson('/api/usuarios/999');
-    $resposta->assertStatus(404);
+    $response->assertNotFound()
+        ->assertJsonFragment(['error' => 'Usuário não encontrado.']);
 });

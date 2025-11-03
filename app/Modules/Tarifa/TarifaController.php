@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller;
 /**
  * @OA\Tag(
  *     name="Tarifas",
- *     description="Gerenciamento de tarifas de estacionamento"
+ *     description="Operações de gerenciamento de tarifas de estacionamento"
  * )
  */
 class TarifaController extends Controller
