@@ -6,12 +6,8 @@ namespace App\Docs;
  * @OA\Info(
  *     title="SmartPark API",
  *     version="1.0.0",
- *     description="API para gerenciamento de estacionamentos inteligentes - Sistema de controle de vagas, usuários e reservas",
+ *     description="Documentação da API do SmartPark.",
  *
- *     @OA\Contact(
- *         email="contato@smartpark.com",
- *         name="Equipe SmartPark"
- *     )
  * )
  *
  * @OA\Server(

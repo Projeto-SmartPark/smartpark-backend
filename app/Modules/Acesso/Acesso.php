@@ -2,7 +2,7 @@
 
 namespace App\Modules\Acesso;
 
-use App\Modules\Clientes\Cliente;
+use App\Modules\Usuarios\Models\Cliente;
 use App\Modules\Vaga\Vaga;
 use App\Modules\Veiculo\Veiculo;
 use Illuminate\Database\Eloquent\Model;

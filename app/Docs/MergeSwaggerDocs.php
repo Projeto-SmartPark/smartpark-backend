@@ -93,6 +93,17 @@ class MergeSwaggerDocs
             $backend['components']['schemas'] ?? []
         );
 
+        // === 🔐 Mescla os securitySchemes (JWT, etc.) ===
+        $final['components']['securitySchemes'] = array_merge(
+            $auth['components']['securitySchemes'] ?? [],
+            $backend['components']['securitySchemes'] ?? []
+        );
+
+        // === 🔒 Define segurança global para rotas protegidas ===
+        $final['security'] = [
+            ['bearerAuth' => []]
+        ];
+
         // Servidores globais
         $final['servers'] = [
             ['url' => env('APP_URL', 'http://127.0.0.1:8000/api'), 'description' => 'SmartPark Backend'],
