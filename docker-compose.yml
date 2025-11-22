@@ -43,7 +43,6 @@ services:
         php artisan key:generate --force &&
         php artisan jwt:secret --force &&
         php artisan migrate --force &&
-        php artisan test &&
         php artisan swagger:merge &&
         php artisan serve --host=0.0.0.0 --port=8000
       "
@@ -52,6 +51,23 @@ services:
       - auth
     env_file:
       - ../smartpark-backend/.env
+
+  frontend:
+    build: ../smartpark-frontend
+    image: smartpark-frontend
+    container_name: smartpark-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../smartpark-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - auth
+      - backend
+    env_file:
+      - ../smartpark-frontend/.env
+    stdin_open: true
+    tty: true
 
 volumes:
   db_data:

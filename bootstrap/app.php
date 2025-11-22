@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.microservico' => \App\Http\Middleware\AuthMicroservico::class,
         ]);
+        
+        // Habilita CORS para permitir requisições do frontend
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

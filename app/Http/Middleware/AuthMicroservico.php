@@ -4,7 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthMicroservico
 {
@@ -19,24 +21,41 @@ class AuthMicroservico
             return response()->json(['error' => 'Token não fornecido.'], 401);
         }
 
-        $authUrl = config('services.auth.url').'/api/auth/me';
+        // Tenta buscar dados do usuário do cache
+        $cacheKey = 'auth_user_'.$token;
+        $usuario = Cache::get($cacheKey);
 
-        try {
-            $response = Http::withToken($token)->get($authUrl);
+        if (! $usuario) {
+            // Se não estiver em cache, valida com o microserviço de autenticação
+            $authUrl = config('services.auth.url').'/api/auth/me';
 
-            if ($response->failed()) {
-                return response()->json(['error' => 'Token inválido ou expirado.'], 401);
+            try {
+                $response = Http::timeout(3)->withToken($token)->get($authUrl);
+
+                if ($response->failed()) {
+                    return response()->json(['error' => 'Token inválido ou expirado.'], 401);
+                }
+
+                $usuario = $response->json();
+
+                // Armazena no cache por 5 minutos
+                Cache::put($cacheKey, $usuario, 300);
+            } catch (\Throwable $e) {
+                \Log::error('Error validating token', [
+                    'message' => $e->getMessage(),
+                    'auth_url' => $authUrl,
+                ]);
+
+                return response()->json([
+                    'error' => 'Erro ao validar token.',
+                    'message' => $e->getMessage(),
+                ], 500);
             }
-
-            // Injeta os dados do usuário autenticado na requisição
-            $request->merge(['usuario' => $response->json()]);
-
-            return $next($request);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'error' => 'Erro ao validar token.',
-                'message' => $e->getMessage(),
-            ], 500);
         }
+
+        // Injeta os dados do usuário autenticado na requisição
+        $request->merge(['usuario' => $usuario]);
+
+        return $next($request);
     }
 }
