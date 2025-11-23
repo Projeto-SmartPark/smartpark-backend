@@ -26,7 +26,7 @@ class EstacionamentoService
      */
     public function listarEstacionamentos()
     {
-        return Estacionamento::with(['telefones', 'endereco'])->get();
+        return Estacionamento::with(['telefones', 'endereco', 'vagas'])->get();
     }
 
     /**

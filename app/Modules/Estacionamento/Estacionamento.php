@@ -5,6 +5,7 @@ namespace App\Modules\Estacionamento;
 use App\Modules\Endereco\Endereco;
 use App\Modules\Telefone\Telefone;
 use App\Modules\Usuarios\Models\Gestor;
+use App\Modules\Vaga\Vaga;
 use Illuminate\Database\Eloquent\Model;
 
 class Estacionamento extends Model
@@ -56,5 +57,13 @@ class Estacionamento extends Model
             'id_estacionamento',
             'id_telefone'
         );
+    }
+
+    /**
+     * Relacionamento: Um estacionamento tem várias vagas
+     */
+    public function vagas()
+    {
+        return $this->hasMany(Vaga::class, 'estacionamento_id', 'id_estacionamento');
     }
 }
