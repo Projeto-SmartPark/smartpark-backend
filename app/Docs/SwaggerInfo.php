@@ -11,8 +11,16 @@ namespace App\Docs;
  * )
  *
  * @OA\Server(
- *     url="http://127.0.0.1:8000/api",
- *     description="Servidor Local de Desenvolvimento"
+ *     url="http://localhost:8000/api",
+ *     description="Servidor Principal (Local)"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Insira o token JWT obtido no login"
  * )
  *
  * @OA\Tag(

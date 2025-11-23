@@ -4,58 +4,50 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthMicroservico
 {
     /**
-     * Middleware para validar o token JWT com o microserviço de autenticação.
+     * Valida o token JWT localmente (sem HTTP calls).
+     * Ambos os serviços compartilham o mesmo JWT_SECRET.
      */
     public function handle(Request $request, Closure $next)
     {
         $token = $request->bearerToken();
 
-        if (! $token) {
+        if (!$token) {
             return response()->json(['error' => 'Token não fornecido.'], 401);
         }
 
-        // Tenta buscar dados do usuário do cache
-        $cacheKey = 'auth_user_'.$token;
-        $usuario = Cache::get($cacheKey);
+        try {
+            // Define o token e decodifica localmente
+            JWTAuth::setToken($token);
+            $payload = JWTAuth::getPayload();
 
-        if (! $usuario) {
-            // Se não estiver em cache, valida com o microserviço de autenticação
-            $authUrl = config('services.auth.url').'/api/auth/me';
+            // Extrai dados do usuário do payload
+            $usuario = [
+                'id' => $payload->get('sub'),
+                'nome' => $payload->get('nome'),
+                'email' => $payload->get('email'),
+                'perfil' => $payload->get('perfil'),
+            ];
 
-            try {
-                $response = Http::timeout(3)->withToken($token)->get($authUrl);
+            // Adiciona ao request (como array, não objeto)
+            $request->merge(['usuario' => $usuario]);
 
-                if ($response->failed()) {
-                    return response()->json(['error' => 'Token inválido ou expirado.'], 401);
-                }
-
-                $usuario = $response->json();
-
-                // Armazena no cache por 5 minutos
-                Cache::put($cacheKey, $usuario, 300);
-            } catch (\Throwable $e) {
-                \Log::error('Error validating token', [
-                    'message' => $e->getMessage(),
-                    'auth_url' => $authUrl,
-                ]);
-
-                return response()->json([
-                    'error' => 'Erro ao validar token.',
-                    'message' => $e->getMessage(),
-                ], 500);
-            }
+            return $next($request);
+        } catch (TokenExpiredException $e) {
+            return response()->json(['error' => 'Token expirado.'], 401);
+        } catch (TokenInvalidException $e) {
+            return response()->json(['error' => 'Token inválido.'], 401);
+        } catch (JWTException $e) {
+            Log::error('Erro JWT AuthMicroservico: ' . $e->getMessage());
+            return response()->json(['error' => 'Não autenticado.'], 401);
         }
-
-        // Injeta os dados do usuário autenticado na requisição
-        $request->merge(['usuario' => $usuario]);
-
-        return $next($request);
     }
 }

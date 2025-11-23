@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 
 class EstacionamentoController extends Controller
 {
@@ -71,9 +72,20 @@ class EstacionamentoController extends Controller
      */
     public function index(): JsonResponse
     {
-        $estacionamentos = $this->estacionamentoService->listarEstacionamentos();
+        try {
+            $estacionamentos = $this->estacionamentoService->listarEstacionamentos();
 
-        return response()->json($estacionamentos, 200);
+            return response()->json($estacionamentos, 200);
+        } catch (Exception $e) {
+            Log::error('Erro ao listar estacionamentos: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Erro ao listar estacionamentos.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
