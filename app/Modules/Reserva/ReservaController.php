@@ -117,7 +117,6 @@ class ReservaController extends Controller
             'hora_inicio' => 'required|date_format:H:i:s',
             'hora_fim' => 'required|date_format:H:i:s',
             'status' => 'nullable|in:ativa,cancelada,concluida,expirada',
-            'cliente_id' => 'required|integer|exists:clientes,id_cliente',
             'veiculo_id' => 'required|integer|exists:veiculos,id_veiculo',
             'vaga_id' => 'required|integer|exists:vagas,id_vaga',
         ], [
@@ -128,9 +127,6 @@ class ReservaController extends Controller
             'hora_fim.required' => 'O campo hora de fim é obrigatório.',
             'hora_fim.date_format' => 'O campo hora de fim deve estar no formato HH:MM:SS.',
             'status.in' => 'O campo status deve ser: ativa, cancelada, concluida ou expirada.',
-            'cliente_id.required' => 'O campo cliente é obrigatório.',
-            'cliente_id.integer' => 'O campo cliente deve ser um número inteiro.',
-            'cliente_id.exists' => 'O cliente informado não existe.',
             'veiculo_id.required' => 'O campo veículo é obrigatório.',
             'veiculo_id.integer' => 'O campo veículo deve ser um número inteiro.',
             'veiculo_id.exists' => 'O veículo informado não existe.',
@@ -140,6 +136,8 @@ class ReservaController extends Controller
         ]);
 
         try {
+            $usuario = $request->usuario;
+            $validated['cliente_id'] = $usuario['id'];
             $reserva = $this->reservaService->criarReserva($validated);
 
             return response()->json([
@@ -405,6 +403,107 @@ class ReservaController extends Controller
                 'error' => 'Erro ao remover reserva.',
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/reservas/cliente",
+     *     tags={"Reservas"},
+     *     summary="Lista reservas do cliente autenticado",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Lista de reservas do cliente")
+     * )
+     */
+    public function listarPorCliente(Request $request): JsonResponse
+    {
+        try {
+            $usuario = $request->usuario;
+            $reservas = $this->reservaService->listarReservasPorCliente($usuario['id']);
+            return response()->json($reservas, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao listar reservas.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/reservas/verificar-disponibilidade",
+     *     tags={"Reservas"},
+     *     summary="Verificar disponibilidade de vaga",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"vaga_id", "data", "hora_inicio", "hora_fim"},
+     *             @OA\Property(property="vaga_id", type="integer"),
+     *             @OA\Property(property="data", type="string", format="date"),
+     *             @OA\Property(property="hora_inicio", type="string", format="time"),
+     *             @OA\Property(property="hora_fim", type="string", format="time")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Disponibilidade verificada")
+     * )
+     */
+    public function verificarDisponibilidade(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'vaga_id' => 'required|integer',
+            'data' => 'required|date',
+            'hora_inicio' => 'required|date_format:H:i:s',
+            'hora_fim' => 'required|date_format:H:i:s',
+        ]);
+
+        try {
+            $disponivel = $this->reservaService->verificarDisponibilidade(
+                $validated['vaga_id'],
+                $validated['data'],
+                $validated['hora_inicio'],
+                $validated['hora_fim']
+            );
+
+            return response()->json(['disponivel' => $disponivel], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao verificar disponibilidade.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/reservas/{id}/cancelar",
+     *     tags={"Reservas"},
+     *     summary="Cancelar reserva",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Reserva cancelada com sucesso")
+     * )
+     */
+    public function cancelar(int $id, Request $request): JsonResponse
+    {
+        try {
+            $usuario = $request->usuario;
+            $reserva = $this->reservaService->cancelarReserva($id, $usuario['id']);
+            
+            return response()->json([
+                'message' => 'Reserva cancelada com sucesso.',
+                'data' => $reserva,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Reserva não encontrada.',
+                'message' => 'A reserva com o ID informado não existe.',
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao cancelar reserva.',
+                'message' => $e->getMessage(),
+            ], 400);
         }
     }
 }

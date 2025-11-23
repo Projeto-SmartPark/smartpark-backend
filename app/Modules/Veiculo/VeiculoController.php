@@ -49,6 +49,29 @@ class VeiculoController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/veiculos/cliente",
+     *     tags={"Veículos"},
+     *     summary="Lista veículos do cliente autenticado",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Lista de veículos do cliente")
+     * )
+     */
+    public function listarPorCliente(Request $request): JsonResponse
+    {
+        try {
+            $usuario = $request->usuario;
+            $veiculos = $this->veiculoService->listarVeiculosPorCliente($usuario['id']);
+            return response()->json($veiculos, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao listar veículos.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * @OA\Post(
      *     path="/veiculos",
      *     tags={"Veículos"},

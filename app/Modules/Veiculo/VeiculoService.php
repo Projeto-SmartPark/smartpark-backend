@@ -56,4 +56,12 @@ class VeiculoService
 
         return $veiculo->delete();
     }
+
+    /**
+     * Listar veículos por cliente
+     */
+    public function listarVeiculosPorCliente(int $clienteId)
+    {
+        return Veiculo::where('cliente_id', $clienteId)->get();
+    }
 }
