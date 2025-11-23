@@ -4,6 +4,7 @@ namespace App\Modules\Estacionamento;
 
 use App\Modules\Endereco\EnderecoService;
 use App\Modules\Telefone\TelefoneService;
+use App\Modules\Vaga\Vaga;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -53,6 +54,17 @@ class EstacionamentoService
                     $estacionamento->id_estacionamento,
                     $telefones
                 );
+            }
+
+            // 5. Cria vagas automaticamente conforme capacidade
+            $capacidade = $dados['capacidade'] ?? 0;
+            for ($i = 1; $i <= $capacidade; $i++) {
+                Vaga::create([
+                    'identificacao' => 'Vaga ' . $i,
+                    'tipo' => 'carro',
+                    'disponivel' => 'S',
+                    'estacionamento_id' => $estacionamento->id_estacionamento,
+                ]);
             }
 
             DB::commit();
