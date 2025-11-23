@@ -51,6 +51,44 @@ class VagaController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/vagas/estacionamento/{estacionamentoId}",
+     *     tags={"Vagas"},
+     *     summary="Lista vagas de um estacionamento",
+     *     description="Retorna todas as vagas de um estacionamento específico",
+     *
+     *     @OA\Parameter(
+     *         name="estacionamentoId",
+     *         in="path",
+     *         description="ID do estacionamento",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista retornada com sucesso",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id_vaga", type="integer", example=1),
+     *                 @OA\Property(property="identificacao", type="string", example="A-101"),
+     *                 @OA\Property(property="tipo", type="string", example="carro"),
+     *                 @OA\Property(property="disponivel", type="string", example="S"),
+     *                 @OA\Property(property="estacionamento_id", type="integer", example=1)
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function listarPorEstacionamento(int $estacionamentoId): JsonResponse
+    {
+        $vagas = $this->vagaService->listarVagasPorEstacionamento($estacionamentoId);
+
+        return response()->json($vagas, 200);
+    }
+
+    /**
      * @OA\Post(
      *     path="/vagas",
      *     tags={"Vagas"},

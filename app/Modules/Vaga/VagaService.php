@@ -15,6 +15,14 @@ class VagaService
     }
 
     /**
+     * Listar vagas por estacionamento
+     */
+    public function listarVagasPorEstacionamento(int $estacionamentoId)
+    {
+        return Vaga::where('estacionamento_id', $estacionamentoId)->get();
+    }
+
+    /**
      * Criar nova vaga
      */
     public function criarVaga(array $dados): Vaga
