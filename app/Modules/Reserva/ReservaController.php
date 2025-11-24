@@ -291,33 +291,55 @@ class ReservaController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'data' => 'required|date',
-            'hora_inicio' => 'required|date_format:H:i:s',
-            'hora_fim' => 'required|date_format:H:i:s',
-            'status' => 'nullable|in:ativa,cancelada,concluida,expirada',
-            'cliente_id' => 'required|integer|exists:clientes,id_cliente',
-            'veiculo_id' => 'required|integer|exists:veiculos,id_veiculo',
-            'vaga_id' => 'required|integer|exists:vagas,id_vaga',
+            'data' => 'sometimes|date',
+            'hora_inicio' => 'sometimes|date_format:H:i:s',
+            'hora_fim' => 'sometimes|date_format:H:i:s',
+            'status' => 'sometimes|in:ativa,cancelada,concluida,expirada',
+            'cliente_id' => 'sometimes|integer|exists:clientes,id_cliente',
+            'veiculo_id' => 'sometimes|integer|exists:veiculos,id_veiculo',
+            'vaga_id' => 'sometimes|integer|exists:vagas,id_vaga',
         ], [
-            'data.required' => 'O campo data é obrigatório.',
             'data.date' => 'O campo data deve ser uma data válida.',
-            'hora_inicio.required' => 'O campo hora de início é obrigatório.',
             'hora_inicio.date_format' => 'O campo hora de início deve estar no formato HH:MM:SS.',
-            'hora_fim.required' => 'O campo hora de fim é obrigatório.',
             'hora_fim.date_format' => 'O campo hora de fim deve estar no formato HH:MM:SS.',
             'status.in' => 'O campo status deve ser: ativa, cancelada, concluida ou expirada.',
-            'cliente_id.required' => 'O campo cliente é obrigatório.',
             'cliente_id.integer' => 'O campo cliente deve ser um número inteiro.',
             'cliente_id.exists' => 'O cliente informado não existe.',
-            'veiculo_id.required' => 'O campo veículo é obrigatório.',
             'veiculo_id.integer' => 'O campo veículo deve ser um número inteiro.',
             'veiculo_id.exists' => 'O veículo informado não existe.',
-            'vaga_id.required' => 'O campo vaga é obrigatório.',
             'vaga_id.integer' => 'O campo vaga deve ser um número inteiro.',
             'vaga_id.exists' => 'A vaga informada não existe.',
         ]);
 
         try {
+            $usuario = $request->usuario;
+            
+            // Se estiver mudando status para cancelada ou concluida, liberar vaga
+            if (isset($validated['status']) && in_array($validated['status'], ['cancelada', 'concluida'])) {
+                $reserva = $this->reservaService->buscarReservaPorId($id);
+                
+                // Validar permissão
+                if ($reserva->cliente_id != $usuario['id']) {
+                    return response()->json([
+                        'error' => 'Sem permissão.',
+                        'message' => 'Você não tem permissão para atualizar esta reserva.',
+                    ], 403);
+                }
+                
+                if ($reserva->status !== 'ativa') {
+                    return response()->json([
+                        'error' => 'Status inválido.',
+                        'message' => 'Esta reserva já foi cancelada ou concluída.',
+                    ], 400);
+                }
+                
+                // Liberar vaga
+                if ($reserva->vaga) {
+                    $reserva->vaga->disponivel = 'S';
+                    $reserva->vaga->save();
+                }
+            }
+            
             $reserva = $this->reservaService->atualizarReserva($id, $validated);
 
             return response()->json([
@@ -368,7 +390,7 @@ class ReservaController extends Controller
      *         description="Reserva não encontrada",
      *
      *         @OA\JsonContent(
-             @OA\Property(property="error", type="string", example="Reserva não encontrada."),
+     *        @OA\Property(property="error", type="string", example="Reserva não encontrada."),
      *             @OA\Property(property="message", type="string", example="A reserva com o ID informado não existe.")
      *         )
      *     ),
@@ -471,39 +493,6 @@ class ReservaController extends Controller
                 'error' => 'Erro ao verificar disponibilidade.',
                 'message' => $e->getMessage(),
             ], 500);
-        }
-    }
-
-    /**
-     * @OA\Put(
-     *     path="/reservas/{id}/cancelar",
-     *     tags={"Reservas"},
-     *     summary="Cancelar reserva",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Reserva cancelada com sucesso")
-     * )
-     */
-    public function cancelar(int $id, Request $request): JsonResponse
-    {
-        try {
-            $usuario = $request->usuario;
-            $reserva = $this->reservaService->cancelarReserva($id, $usuario['id']);
-            
-            return response()->json([
-                'message' => 'Reserva cancelada com sucesso.',
-                'data' => $reserva,
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => 'Reserva não encontrada.',
-                'message' => 'A reserva com o ID informado não existe.',
-            ], 404);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Erro ao cancelar reserva.',
-                'message' => $e->getMessage(),
-            ], 400);
         }
     }
 }

@@ -77,15 +77,14 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Cria um novo veículo",
      *     description="Cadastra um novo veículo no sistema",
-     *
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *
      *         @OA\JsonContent(
-     *             required={"placa", "cliente_id"},
+     *             required={"placa"},
      *
-     *             @OA\Property(property="placa", type="string", maxLength=10, example="ABC1234", description="Placa do veículo"),
-     *             @OA\Property(property="cliente_id", type="integer", example=1)
+     *             @OA\Property(property="placa", type="string", maxLength=10, example="ABC1234", description="Placa do veículo")
      *         )
      *     ),
      *
@@ -127,18 +126,16 @@ class VeiculoController extends Controller
     {
         $validated = $request->validate([
             'placa' => 'required|string|max:10|unique:veiculos,placa',
-            'cliente_id' => 'required|integer|exists:clientes,id_cliente',
         ], [
             'placa.required' => 'O campo placa é obrigatório.',
             'placa.string' => 'O campo placa deve ser um texto.',
             'placa.max' => 'O campo placa não pode ter mais de 10 caracteres.',
             'placa.unique' => 'Já existe um veículo com esta placa.',
-            'cliente_id.required' => 'O campo cliente é obrigatório.',
-            'cliente_id.integer' => 'O campo cliente deve ser um número inteiro.',
-            'cliente_id.exists' => 'O cliente informado não existe.',
         ]);
 
         try {
+            $usuario = $request->usuario;
+            $validated['cliente_id'] = $usuario['id'];
             $veiculo = $this->veiculoService->criarVeiculo($validated);
 
             return response()->json([
@@ -213,7 +210,7 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Atualiza um veículo",
      *     description="Atualiza os dados de um veículo existente",
-     *
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -227,10 +224,9 @@ class VeiculoController extends Controller
      *         required=true,
      *
      *         @OA\JsonContent(
-     *             required={"placa", "cliente_id"},
+     *             required={"placa"},
      *
-     *             @OA\Property(property="placa", type="string", maxLength=10, example="XYZ5678"),
-     *             @OA\Property(property="cliente_id", type="integer", example=1)
+     *             @OA\Property(property="placa", type="string", maxLength=10, example="XYZ5678")
      *         )
      *     ),
      *
@@ -283,14 +279,11 @@ class VeiculoController extends Controller
     {
         $validated = $request->validate([
             'placa' => 'required|string|max:10|unique:veiculos,placa,'.$id.',id_veiculo',
-            'cliente_id' => 'required|integer|exists:clientes,id_cliente',
         ], [
             'placa.required' => 'O campo placa é obrigatório.',
             'placa.string' => 'O campo placa deve ser um texto.',
             'placa.max' => 'O campo placa não pode ter mais de 10 caracteres.',
             'placa.unique' => 'Já existe um veículo com esta placa.',
-            'cliente_id.required' => 'O campo cliente é obrigatório.',
-            'cliente_id.integer' => 'O campo cliente deve ser um número inteiro.',
             'cliente_id.exists' => 'O cliente informado não existe.',
         ]);
 
