@@ -17,6 +17,7 @@ return new class extends Migration
             $table->time('hora_inicio');
             $table->time('hora_fim')->nullable();
             $table->decimal('valor_total', 8, 2)->nullable();
+            $table->enum('pago', ['S', 'N'])->default('N');
             $table->unsignedBigInteger('veiculo_id');
             $table->unsignedBigInteger('vaga_id');
             $table->unsignedBigInteger('cliente_id');

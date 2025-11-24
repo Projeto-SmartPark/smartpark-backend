@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nome', 100);
             $table->decimal('valor', 7, 2);
             $table->enum('tipo', ['segundo', 'minuto', 'hora', 'diaria', 'mensal']);
+            $table->enum('ativa', ['S', 'N'])->default('S');
             $table->unsignedBigInteger('estacionamento_id');
 
             $table->foreign('estacionamento_id')
