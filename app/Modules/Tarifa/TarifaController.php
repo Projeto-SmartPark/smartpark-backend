@@ -111,6 +111,7 @@ class TarifaController extends Controller
             'valor' => 'required|numeric|min:0',
             'tipo' => 'required|in:segundo,minuto,hora,diaria,mensal',
             'estacionamento_id' => 'required|exists:estacionamentos,id_estacionamento',
+            'ativa' => 'sometimes|in:S,N',
         ], [
             'nome.required' => 'O nome da tarifa é obrigatório',
             'nome.string' => 'O nome da tarifa deve ser texto',
@@ -122,6 +123,7 @@ class TarifaController extends Controller
             'tipo.in' => 'O tipo da tarifa deve ser: segundo, minuto, hora, diaria ou mensal',
             'estacionamento_id.required' => 'O estacionamento é obrigatório',
             'estacionamento_id.exists' => 'Estacionamento não encontrado',
+            'ativa.in' => 'O campo ativa deve ser S ou N',
         ]);
 
         try {
@@ -251,6 +253,7 @@ class TarifaController extends Controller
             'valor' => 'sometimes|numeric|min:0',
             'tipo' => 'sometimes|in:segundo,minuto,hora,diaria,mensal',
             'estacionamento_id' => 'sometimes|exists:estacionamentos,id_estacionamento',
+            'ativa' => 'sometimes|in:S,N',
         ], [
             'nome.string' => 'O nome da tarifa deve ser texto',
             'nome.max' => 'O nome da tarifa deve ter no máximo 100 caracteres',
@@ -258,6 +261,7 @@ class TarifaController extends Controller
             'valor.min' => 'O valor da tarifa deve ser no mínimo 0',
             'tipo.in' => 'O tipo da tarifa deve ser: segundo, minuto, hora, diaria ou mensal',
             'estacionamento_id.exists' => 'Estacionamento não encontrado',
+            'ativa.in' => 'O campo ativa deve ser S ou N',
         ]);
 
         try {

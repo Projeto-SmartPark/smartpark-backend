@@ -18,6 +18,7 @@ class Tarifa extends Model
         'valor',
         'tipo',
         'estacionamento_id',
+        'ativa',
     ];
 
     protected $casts = [
