@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vagas', function (Blueprint $table) {
             $table->id('id_vaga');
-            $table->string('identificacao', 20)->unique();
+            $table->string('identificacao', 20);
             $table->enum('tipo', ['carro', 'moto', 'deficiente', 'idoso', 'eletrico', 'outro']);
             $table->enum('disponivel', ['S', 'N'])->default('S');
             $table->unsignedBigInteger('estacionamento_id');
@@ -23,6 +23,8 @@ return new class extends Migration
                 ->on('estacionamentos')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
+
+            $table->unique(['estacionamento_id', 'identificacao'], 'uq_identificacao_estacionamento');
         });
     }
 
