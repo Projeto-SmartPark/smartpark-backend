@@ -11,7 +11,15 @@ class ReservaService
      */
     public function listarReservas()
     {
-        return Reserva::with(['cliente', 'veiculo', 'vaga'])->get();
+        return Reserva::with(['cliente', 'veiculo', 'vaga.estacionamento'])
+            ->orderByRaw("CASE 
+                WHEN status = 'ativa' THEN 1
+                WHEN status = 'concluida' THEN 2
+                ELSE 3
+            END")
+            ->orderBy('data', 'desc')
+            ->orderBy('hora_inicio', 'desc')
+            ->get();
     }
 
     /**
