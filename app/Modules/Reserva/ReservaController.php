@@ -530,6 +530,7 @@ class ReservaController extends Controller
             'veiculo_id' => $reserva->veiculo_id,
             'vaga_id' => $reserva->vaga_id,
             'cliente_id' => $reserva->cliente_id,
+            'tarifa_id' => $tarifa->id_tarifa,
         ]);
     }
 

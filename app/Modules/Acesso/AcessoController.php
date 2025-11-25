@@ -164,6 +164,7 @@ class AcessoController extends Controller
             'veiculo_id' => 'required|exists:veiculos,id_veiculo',
             'vaga_id' => 'required|exists:vagas,id_vaga',
             'cliente_id' => 'required|exists:clientes,id_cliente',
+            'tarifa_id' => 'required|exists:tarifas,id_tarifa',
         ], [
             'data.required' => 'A data do acesso é obrigatória',
             'data.date' => 'A data do acesso deve estar no formato válido',
@@ -178,6 +179,8 @@ class AcessoController extends Controller
             'vaga_id.exists' => 'Vaga não encontrada',
             'cliente_id.required' => 'O cliente é obrigatório',
             'cliente_id.exists' => 'Cliente não encontrado',
+            'tarifa_id.required' => 'A tarifa é obrigatória',
+            'tarifa_id.exists' => 'Tarifa não encontrada',
         ]);
 
         try {
@@ -331,6 +334,7 @@ class AcessoController extends Controller
             'veiculo_id' => 'sometimes|exists:veiculos,id_veiculo',
             'vaga_id' => 'sometimes|exists:vagas,id_vaga',
             'cliente_id' => 'sometimes|exists:clientes,id_cliente',
+            'tarifa_id' => 'sometimes|exists:tarifas,id_tarifa',
         ], [
             'data.date' => 'A data do acesso deve estar no formato válido',
             'hora_inicio.date_format' => 'A hora de início deve estar no formato HH:MM:SS',
@@ -340,6 +344,7 @@ class AcessoController extends Controller
             'veiculo_id.exists' => 'Veículo não encontrado',
             'vaga_id.exists' => 'Vaga não encontrada',
             'cliente_id.exists' => 'Cliente não encontrado',
+            'tarifa_id.exists' => 'Tarifa não encontrada',
         ]);
 
         try {

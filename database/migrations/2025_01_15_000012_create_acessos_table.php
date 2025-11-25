@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('veiculo_id');
             $table->unsignedBigInteger('vaga_id');
             $table->unsignedBigInteger('cliente_id');
+            $table->unsignedBigInteger('tarifa_id');
 
             $table->foreign('veiculo_id')
                 ->references('id_veiculo')
@@ -35,6 +36,11 @@ return new class extends Migration
             $table->foreign('cliente_id')
                 ->references('id_cliente')
                 ->on('clientes')
+                ->onDelete('cascade');
+
+            $table->foreign('tarifa_id')
+                ->references('id_tarifa')
+                ->on('tarifas')
                 ->onDelete('cascade');
         });
     }

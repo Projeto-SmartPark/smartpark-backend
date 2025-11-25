@@ -24,6 +24,7 @@ class Acesso extends Model
         'veiculo_id',
         'vaga_id',
         'cliente_id',
+        'tarifa_id',
     ];
 
     protected $casts = [
@@ -52,5 +53,13 @@ class Acesso extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'cliente_id', 'id_cliente');
+    }
+
+    /**
+     * Relacionamento: Um acesso pertence a uma tarifa
+     */
+    public function tarifa()
+    {
+        return $this->belongsTo(\App\Modules\Tarifa\Tarifa::class, 'tarifa_id', 'id_tarifa');
     }
 }
