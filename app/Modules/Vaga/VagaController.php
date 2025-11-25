@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rule;
 
 class VagaController extends Controller
 {
@@ -145,7 +146,13 @@ class VagaController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'identificacao' => 'required|string|max:20|unique:vagas,identificacao',
+            'identificacao' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('vagas', 'identificacao')
+                    ->where('estacionamento_id', $request->estacionamento_id)
+            ],
             'tipo' => 'required|in:carro,moto,deficiente,idoso,eletrico,outro',
             'disponivel' => 'nullable|in:S,N',
             'estacionamento_id' => 'required|integer|exists:estacionamentos,id_estacionamento',
@@ -153,7 +160,7 @@ class VagaController extends Controller
             'identificacao.required' => 'O campo identificação é obrigatório.',
             'identificacao.string' => 'O campo identificação deve ser um texto.',
             'identificacao.max' => 'O campo identificação não pode ter mais de 20 caracteres.',
-            'identificacao.unique' => 'Já existe uma vaga com esta identificação.',
+            'identificacao.unique' => 'Já existe uma vaga com esta identificação neste estacionamento.',
             'tipo.required' => 'O campo tipo é obrigatório.',
             'tipo.in' => 'O campo tipo deve ser: carro, moto, deficiente, idoso, eletrico ou outro.',
             'disponivel.in' => 'O campo disponível deve ser S (Sim) ou N (Não).',
@@ -310,7 +317,14 @@ class VagaController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'identificacao' => 'required|string|max:20|unique:vagas,identificacao,'.$id.',id_vaga',
+            'identificacao' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('vagas', 'identificacao')
+                    ->where('estacionamento_id', $request->estacionamento_id)
+                    ->ignore($id, 'id_vaga')
+            ],
             'tipo' => 'required|in:carro,moto,deficiente,idoso,eletrico,outro',
             'disponivel' => 'nullable|in:S,N',
             'estacionamento_id' => 'required|integer|exists:estacionamentos,id_estacionamento',
@@ -318,7 +332,7 @@ class VagaController extends Controller
             'identificacao.required' => 'O campo identificação é obrigatório.',
             'identificacao.string' => 'O campo identificação deve ser um texto.',
             'identificacao.max' => 'O campo identificação não pode ter mais de 20 caracteres.',
-            'identificacao.unique' => 'Já existe uma vaga com esta identificação.',
+            'identificacao.unique' => 'Já existe uma vaga com esta identificação neste estacionamento.',
             'tipo.required' => 'O campo tipo é obrigatório.',
             'tipo.in' => 'O campo tipo deve ser: carro, moto, deficiente, idoso, eletrico ou outro.',
             'disponivel.in' => 'O campo disponível deve ser S (Sim) ou N (Não).',
