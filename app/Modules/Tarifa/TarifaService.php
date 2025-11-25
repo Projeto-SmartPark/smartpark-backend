@@ -56,4 +56,19 @@ class TarifaService
 
         return $tarifa->delete();
     }
+
+    /**
+     * Desativar todas as tarifas de um estacionamento, exceto a especificada
+     */
+    public function desativarTarifasDoEstacionamento(int $estacionamentoId, ?int $exceto = null): void
+    {
+        $query = Tarifa::where('estacionamento_id', $estacionamentoId)
+            ->where('ativa', 'S');
+        
+        if ($exceto) {
+            $query->where('id_tarifa', '!=', $exceto);
+        }
+        
+        $query->update(['ativa' => 'N']);
+    }
 }

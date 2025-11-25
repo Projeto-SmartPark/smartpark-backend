@@ -2,6 +2,8 @@
 
 namespace App\Modules\Reserva;
 
+use App\Modules\Acesso\Acesso;
+use App\Modules\Tarifa\Tarifa;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -333,6 +335,11 @@ class ReservaController extends Controller
                     ], 400);
                 }
                 
+                // Se for concluir, criar acesso com pagamento
+                if ($validated['status'] === 'concluida') {
+                    $this->criarAcessoDeReserva($reserva);
+                }
+                
                 // Liberar vaga
                 if ($reserva->vaga) {
                     $reserva->vaga->disponivel = 'S';
@@ -493,6 +500,73 @@ class ReservaController extends Controller
                 'error' => 'Erro ao verificar disponibilidade.',
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Criar acesso automaticamente quando uma reserva é concluída
+     */
+    private function criarAcessoDeReserva(Reserva $reserva): void
+    {
+        // Buscar tarifa ativa do estacionamento
+        $tarifa = Tarifa::where('estacionamento_id', $reserva->vaga->estacionamento_id)
+            ->where('ativa', 'S')
+            ->first();
+
+        if (!$tarifa) {
+            throw new Exception('Nenhuma tarifa ativa encontrada para este estacionamento.');
+        }
+
+        // Calcular valor total baseado na tarifa
+        $valorTotal = $this->calcularValor($reserva->hora_inicio, $reserva->hora_fim, $tarifa);
+
+        // Criar acesso com status pago
+        Acesso::create([
+            'data' => $reserva->data,
+            'hora_inicio' => $reserva->hora_inicio,
+            'hora_fim' => $reserva->hora_fim,
+            'valor_total' => $valorTotal,
+            'pago' => 'S', // Marcar como já pago
+            'veiculo_id' => $reserva->veiculo_id,
+            'vaga_id' => $reserva->vaga_id,
+            'cliente_id' => $reserva->cliente_id,
+        ]);
+    }
+
+    /**
+     * Calcular valor total baseado no tipo de tarifa
+     */
+    private function calcularValor(string $horaInicio, string $horaFim, Tarifa $tarifa): float
+    {
+        $inicio = new \DateTime($horaInicio);
+        $fim = new \DateTime($horaFim);
+        $diferenca = $inicio->diff($fim);
+
+        switch ($tarifa->tipo) {
+            case 'segundo':
+                $segundos = ($diferenca->h * 3600) + ($diferenca->i * 60) + $diferenca->s;
+                return $segundos * $tarifa->valor;
+
+            case 'minuto':
+                $minutos = ($diferenca->h * 60) + $diferenca->i;
+                if ($diferenca->s > 0) {
+                    $minutos++; // Arredonda para cima se houver segundos
+                }
+                return $minutos * $tarifa->valor;
+
+            case 'hora':
+                $horas = $diferenca->h;
+                if ($diferenca->i > 0 || $diferenca->s > 0) {
+                    $horas++; // Arredonda para cima se houver minutos ou segundos
+                }
+                return $horas * $tarifa->valor;
+
+            case 'diaria':
+            case 'mensal':
+                return $tarifa->valor;
+
+            default:
+                return 0;
         }
     }
 }

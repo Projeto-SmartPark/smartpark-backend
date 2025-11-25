@@ -11,7 +11,22 @@ class AcessoService
      */
     public function listarAcessos()
     {
-        return Acesso::with(['veiculo', 'vaga', 'cliente'])->get();
+        return Acesso::with(['veiculo', 'vaga.estacionamento', 'cliente'])
+            ->orderBy('data', 'desc')
+            ->orderBy('hora_inicio', 'desc')
+            ->get();
+    }
+
+    /**
+     * Listar acessos de um cliente específico
+     */
+    public function listarAcessosPorCliente(int $clienteId)
+    {
+        return Acesso::with(['veiculo', 'vaga.estacionamento', 'cliente'])
+            ->where('cliente_id', $clienteId)
+            ->orderBy('data', 'desc')
+            ->orderBy('hora_inicio', 'desc')
+            ->get();
     }
 
     /**

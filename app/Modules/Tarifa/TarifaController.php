@@ -127,6 +127,11 @@ class TarifaController extends Controller
         ]);
 
         try {
+            // Se estiver criando uma tarifa ativa, desativar outras do mesmo estacionamento
+            if (($request->ativa ?? 'N') === 'S') {
+                $this->tarifaService->desativarTarifasDoEstacionamento($request->estacionamento_id);
+            }
+            
             $tarifa = $this->tarifaService->criarTarifa($request->all());
 
             return response()->json([
@@ -265,6 +270,12 @@ class TarifaController extends Controller
         ]);
 
         try {
+            // Se estiver ativando uma tarifa, desativar outras do mesmo estacionamento
+            if (($request->ativa ?? null) === 'S') {
+                $tarifaAtual = $this->tarifaService->buscarTarifaPorId($id);
+                $this->tarifaService->desativarTarifasDoEstacionamento($tarifaAtual->estacionamento_id, $id);
+            }
+            
             $tarifa = $this->tarifaService->atualizarTarifa($id, $request->all());
 
             return response()->json([

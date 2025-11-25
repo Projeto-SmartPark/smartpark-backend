@@ -81,6 +81,35 @@ class AcessoController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/acessos/cliente",
+     *     summary="Listar acessos do cliente autenticado",
+     *     tags={"Acessos"},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de acessos do cliente retornada com sucesso"
+     *     )
+     * )
+     */
+    public function acessosCliente(Request $request): JsonResponse
+    {
+        try {
+            // Pega o usuário do middleware auth.microservico (como array)
+            $usuario = $request->input('usuario');
+            $clienteId = $usuario['id'];
+            $acessos = $this->acessoService->listarAcessosPorCliente($clienteId);
+
+            return response()->json($acessos, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao listar acessos',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * @OA\Post(
      *     path="/acessos",
      *     summary="Criar novo acesso",

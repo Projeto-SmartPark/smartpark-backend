@@ -20,6 +20,7 @@ class Acesso extends Model
         'hora_inicio',
         'hora_fim',
         'valor_total',
+        'pago',
         'veiculo_id',
         'vaga_id',
         'cliente_id',
