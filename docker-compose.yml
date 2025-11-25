@@ -55,7 +55,6 @@ services:
       - "3000:3000"
     volumes:
       - ../smartpark-frontend:/app
-      - /app/node_modules
     depends_on:
       - auth
       - backend
