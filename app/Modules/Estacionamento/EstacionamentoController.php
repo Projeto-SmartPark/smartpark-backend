@@ -77,10 +77,10 @@ class EstacionamentoController extends Controller
 
             return response()->json($estacionamentos, 200);
         } catch (Exception $e) {
-            Log::error('Erro ao listar estacionamentos: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            Log::error('Erro ao listar estacionamentos: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
                 'error' => 'Erro ao listar estacionamentos.',
                 'message' => $e->getMessage(),

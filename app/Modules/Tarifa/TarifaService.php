@@ -64,11 +64,11 @@ class TarifaService
     {
         $query = Tarifa::where('estacionamento_id', $estacionamentoId)
             ->where('ativa', 'S');
-        
+
         if ($exceto) {
             $query->where('id_tarifa', '!=', $exceto);
         }
-        
+
         $query->update(['ativa' => 'N']);
     }
 }

@@ -315,11 +315,11 @@ class ReservaController extends Controller
 
         try {
             $usuario = $request->usuario;
-            
+
             // Se estiver mudando status para cancelada ou concluida, liberar vaga
             if (isset($validated['status']) && in_array($validated['status'], ['cancelada', 'concluida'])) {
                 $reserva = $this->reservaService->buscarReservaPorId($id);
-                
+
                 // Validar permissão
                 if ($reserva->cliente_id != $usuario['id']) {
                     return response()->json([
@@ -327,26 +327,26 @@ class ReservaController extends Controller
                         'message' => 'Você não tem permissão para atualizar esta reserva.',
                     ], 403);
                 }
-                
+
                 if ($reserva->status !== 'ativa') {
                     return response()->json([
                         'error' => 'Status inválido.',
                         'message' => 'Esta reserva já foi cancelada ou concluída.',
                     ], 400);
                 }
-                
+
                 // Se for concluir, criar acesso com pagamento
                 if ($validated['status'] === 'concluida') {
                     $this->criarAcessoDeReserva($reserva);
                 }
-                
+
                 // Liberar vaga
                 if ($reserva->vaga) {
                     $reserva->vaga->disponivel = 'S';
                     $reserva->vaga->save();
                 }
             }
-            
+
             $reserva = $this->reservaService->atualizarReserva($id, $validated);
 
             return response()->json([
@@ -397,6 +397,7 @@ class ReservaController extends Controller
      *         description="Reserva não encontrada",
      *
      *         @OA\JsonContent(
+     *
      *        @OA\Property(property="error", type="string", example="Reserva não encontrada."),
      *             @OA\Property(property="message", type="string", example="A reserva com o ID informado não existe.")
      *         )
@@ -441,6 +442,7 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Lista reservas do cliente autenticado",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(response=200, description="Lista de reservas do cliente")
      * )
      */
@@ -449,6 +451,7 @@ class ReservaController extends Controller
         try {
             $usuario = $request->usuario;
             $reservas = $this->reservaService->listarReservasPorCliente($usuario['id']);
+
             return response()->json($reservas, 200);
         } catch (Exception $e) {
             return response()->json([
@@ -464,16 +467,20 @@ class ReservaController extends Controller
      *     tags={"Reservas"},
      *     summary="Verificar disponibilidade de vaga",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"vaga_id", "data", "hora_inicio", "hora_fim"},
+     *
      *             @OA\Property(property="vaga_id", type="integer"),
      *             @OA\Property(property="data", type="string", format="date"),
      *             @OA\Property(property="hora_inicio", type="string", format="time"),
      *             @OA\Property(property="hora_fim", type="string", format="time")
      *         )
      *     ),
+     *
      *     @OA\Response(response=200, description="Disponibilidade verificada")
      * )
      */
@@ -513,7 +520,7 @@ class ReservaController extends Controller
             ->where('ativa', 'S')
             ->first();
 
-        if (!$tarifa) {
+        if (! $tarifa) {
             throw new Exception('Nenhuma tarifa ativa encontrada para este estacionamento.');
         }
 
@@ -546,6 +553,7 @@ class ReservaController extends Controller
         switch ($tarifa->tipo) {
             case 'segundo':
                 $segundos = ($diferenca->h * 3600) + ($diferenca->i * 60) + $diferenca->s;
+
                 return $segundos * $tarifa->valor;
 
             case 'minuto':
@@ -553,6 +561,7 @@ class ReservaController extends Controller
                 if ($diferenca->s > 0) {
                     $minutos++; // Arredonda para cima se houver segundos
                 }
+
                 return $minutos * $tarifa->valor;
 
             case 'hora':
@@ -560,6 +569,7 @@ class ReservaController extends Controller
                 if ($diferenca->i > 0 || $diferenca->s > 0) {
                     $horas++; // Arredonda para cima se houver minutos ou segundos
                 }
+
                 return $horas * $tarifa->valor;
 
             case 'diaria':

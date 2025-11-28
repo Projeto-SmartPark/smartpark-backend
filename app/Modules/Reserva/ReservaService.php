@@ -91,18 +91,18 @@ class ReservaService
             ->where('status', 'ativa')
             ->where('data', $data)
             ->where(function ($q) use ($horaInicio, $horaFim) {
-                $q->where(function ($q2) use ($horaInicio, $horaFim) {
+                $q->where(function ($q2) use ($horaInicio) {
                     $q2->where('hora_inicio', '<=', $horaInicio)
                         ->where('hora_fim', '>', $horaInicio);
                 })
-                ->orWhere(function ($q2) use ($horaInicio, $horaFim) {
-                    $q2->where('hora_inicio', '<', $horaFim)
-                        ->where('hora_fim', '>=', $horaFim);
-                })
-                ->orWhere(function ($q2) use ($horaInicio, $horaFim) {
-                    $q2->where('hora_inicio', '>=', $horaInicio)
-                        ->where('hora_fim', '<=', $horaFim);
-                });
+                    ->orWhere(function ($q2) use ($horaFim) {
+                        $q2->where('hora_inicio', '<', $horaFim)
+                            ->where('hora_fim', '>=', $horaFim);
+                    })
+                    ->orWhere(function ($q2) use ($horaInicio, $horaFim) {
+                        $q2->where('hora_inicio', '>=', $horaInicio)
+                            ->where('hora_fim', '<=', $horaFim);
+                    });
             });
 
         if ($reservaIdExcluir) {

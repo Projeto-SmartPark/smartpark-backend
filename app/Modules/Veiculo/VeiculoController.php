@@ -54,6 +54,7 @@ class VeiculoController extends Controller
      *     tags={"Veículos"},
      *     summary="Lista veículos do cliente autenticado",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(response=200, description="Lista de veículos do cliente")
      * )
      */
@@ -62,6 +63,7 @@ class VeiculoController extends Controller
         try {
             $usuario = $request->usuario;
             $veiculos = $this->veiculoService->listarVeiculosPorCliente($usuario['id']);
+
             return response()->json($veiculos, 200);
         } catch (Exception $e) {
             return response()->json([
@@ -78,6 +80,7 @@ class VeiculoController extends Controller
      *     summary="Cria um novo veículo",
      *     description="Cadastra um novo veículo no sistema",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
      *
@@ -211,6 +214,7 @@ class VeiculoController extends Controller
      *     summary="Atualiza um veículo",
      *     description="Atualiza os dados de um veículo existente",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

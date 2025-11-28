@@ -60,7 +60,7 @@ class EstacionamentoService
             $capacidade = $dados['capacidade'] ?? 0;
             for ($i = 1; $i <= $capacidade; $i++) {
                 Vaga::create([
-                    'identificacao' => 'Vaga ' . $i,
+                    'identificacao' => 'Vaga '.$i,
                     'tipo' => 'carro',
                     'disponivel' => 'S',
                     'estacionamento_id' => $estacionamento->id_estacionamento,

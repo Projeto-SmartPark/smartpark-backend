@@ -5,10 +5,10 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthMicroservico
 {
@@ -20,7 +20,7 @@ class AuthMicroservico
     {
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (! $token) {
             return response()->json(['error' => 'Token não fornecido.'], 401);
         }
 
@@ -46,7 +46,8 @@ class AuthMicroservico
         } catch (TokenInvalidException $e) {
             return response()->json(['error' => 'Token inválido.'], 401);
         } catch (JWTException $e) {
-            Log::error('Erro JWT AuthMicroservico: ' . $e->getMessage());
+            Log::error('Erro JWT AuthMicroservico: '.$e->getMessage());
+
             return response()->json(['error' => 'Não autenticado.'], 401);
         }
     }

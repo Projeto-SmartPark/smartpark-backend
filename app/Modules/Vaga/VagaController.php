@@ -63,15 +63,19 @@ class VagaController extends Controller
      *         in="path",
      *         description="ID do estacionamento",
      *         required=true,
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
      *         response=200,
      *         description="Lista retornada com sucesso",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(
+     *
      *                 @OA\Property(property="id_vaga", type="integer", example=1),
      *                 @OA\Property(property="identificacao", type="string", example="A-101"),
      *                 @OA\Property(property="tipo", type="string", example="carro"),
@@ -151,7 +155,7 @@ class VagaController extends Controller
                 'string',
                 'max:20',
                 Rule::unique('vagas', 'identificacao')
-                    ->where('estacionamento_id', $request->estacionamento_id)
+                    ->where('estacionamento_id', $request->estacionamento_id),
             ],
             'tipo' => 'required|in:carro,moto,deficiente,idoso,eletrico,outro',
             'disponivel' => 'nullable|in:S,N',
@@ -323,7 +327,7 @@ class VagaController extends Controller
                 'max:20',
                 Rule::unique('vagas', 'identificacao')
                     ->where('estacionamento_id', $request->estacionamento_id)
-                    ->ignore($id, 'id_vaga')
+                    ->ignore($id, 'id_vaga'),
             ],
             'tipo' => 'required|in:carro,moto,deficiente,idoso,eletrico,outro',
             'disponivel' => 'nullable|in:S,N',

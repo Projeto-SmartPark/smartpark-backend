@@ -14,12 +14,12 @@ class MergeSwaggerDocs
 
         // === Caminhos ===
         $backendJson = storage_path("api-docs/{$docsFile}");
-        $finalJson   = $backendJson;
+        $finalJson = $backendJson;
 
         // === 1. Baixa documentação do Auth via HTTP ===
         echo "🔐 Baixando documentação do Auth...\n";
 
-        $authUrl = rtrim(env('AUTH_SERVICE_URL', 'http://smartpark-auth:8000/api'), '/') . '/docs';
+        $authUrl = rtrim(env('AUTH_SERVICE_URL', 'http://smartpark-auth:8000/api'), '/').'/docs';
 
         $authResponse = @file_get_contents($authUrl);
         if (! $authResponse) {
@@ -28,7 +28,7 @@ class MergeSwaggerDocs
 
         $auth = json_decode($authResponse, true);
         if (! $auth) {
-            throw new \Exception("❌ JSON inválido recebido do Auth.");
+            throw new \Exception('❌ JSON inválido recebido do Auth.');
         }
 
         // === 2. Gera documentação do Backend ===
@@ -42,7 +42,7 @@ class MergeSwaggerDocs
 
         $backend = json_decode(file_get_contents($backendJson), true);
         if (! $backend) {
-            throw new \Exception("❌ JSON inválido do Backend.");
+            throw new \Exception('❌ JSON inválido do Backend.');
         }
 
         echo "🧩 Mesclando documentação...\n";
@@ -59,7 +59,7 @@ class MergeSwaggerDocs
 
             foreach ($def as &$m) {
                 $m['servers'] = [[
-                    'url'         => 'http://localhost:9000/api',
+                    'url' => 'http://localhost:9000/api',
                     'description' => 'Serviço de Autenticação',
                 ]];
             }
@@ -73,7 +73,7 @@ class MergeSwaggerDocs
 
             foreach ($def as &$m) {
                 $m['servers'] = [[
-                    'url'         => 'http://localhost:8000/api',
+                    'url' => 'http://localhost:8000/api',
                     'description' => 'SmartPark Backend',
                 ]];
             }

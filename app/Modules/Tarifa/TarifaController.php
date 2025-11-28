@@ -131,7 +131,7 @@ class TarifaController extends Controller
             if (($request->ativa ?? 'N') === 'S') {
                 $this->tarifaService->desativarTarifasDoEstacionamento($request->estacionamento_id);
             }
-            
+
             $tarifa = $this->tarifaService->criarTarifa($request->all());
 
             return response()->json([
@@ -275,7 +275,7 @@ class TarifaController extends Controller
                 $tarifaAtual = $this->tarifaService->buscarTarifaPorId($id);
                 $this->tarifaService->desativarTarifasDoEstacionamento($tarifaAtual->estacionamento_id, $id);
             }
-            
+
             $tarifa = $this->tarifaService->atualizarTarifa($id, $request->all());
 
             return response()->json([

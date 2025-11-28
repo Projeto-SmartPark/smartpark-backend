@@ -104,7 +104,7 @@ class AcessoController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'Erro ao listar acessos',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
