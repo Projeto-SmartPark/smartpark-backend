@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-# Dependências do Laravel
+# Dependências Laravel
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,25 +11,27 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libonig-dev
 
-# Extensões PHP necessárias
+# Extensões PHP
 RUN docker-php-ext-install pdo pdo_mysql mbstring zip
 
-# Instalar Composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copiar código
+# Remover .env local para evitar sobrescrever variáveis do Railway
+RUN rm -f .env
+
+# Copiar projeto
 COPY . .
 
-# Instalar dependências
+# Instalar dependências do Laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Limpar cache
+# Clear config cache
 RUN php artisan config:clear || true
 
-# Porta usada pelo Railway
 EXPOSE 8080
 
-# Iniciar servidor + rodar migrations
-CMD ["bash", "-lc", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8080"]
+# CMD com MIGRATION AUTOMÁTICA
+CMD sh -c "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8080"
