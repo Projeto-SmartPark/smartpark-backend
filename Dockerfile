@@ -31,5 +31,5 @@ RUN php artisan config:clear || true
 # Porta usada pelo Railway
 EXPOSE 8080
 
-# Iniciar o Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Iniciar servidor + rodar migrations
+CMD ["bash", "-lc", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8080"]
