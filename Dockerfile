@@ -1,10 +1,12 @@
 FROM php:8.3-fpm
 
-# Dependências Laravel
+# Instalar dependências do Laravel
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
     curl \
+    nginx \
+    supervisor \
     libzip-dev \
     libpng-dev \
     libjpeg-dev \
@@ -14,24 +16,37 @@ RUN apt-get update && apt-get install -y \
 # Extensões PHP
 RUN docker-php-ext-install pdo pdo_mysql mbstring zip
 
-# Composer
+# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Criar pasta da aplicação
 WORKDIR /var/www
 
-# Remover .env local para evitar sobrescrever variáveis do Railway
-RUN rm -f .env
-
-# Copiar projeto
+# Copiar código
 COPY . .
 
-# Instalar dependências do Laravel
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Instalar dependências PHP
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Clear config cache
-RUN php artisan config:clear || true
+# Remover .env local (para Railway usar envs próprias)
+RUN rm -f .env
 
+# ------------------------------
+# NGINX CONFIG
+# ------------------------------
+
+COPY ./deployment/nginx.conf /etc/nginx/nginx.conf
+
+# ------------------------------
+# SUPERVISOR CONFIG
+# ------------------------------
+COPY ./deployment/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+
+# Permissões storage
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Porta do Railway
 EXPOSE 8080
 
-# CMD com MIGRATION AUTOMÁTICA
-CMD sh -c "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8080"
+CMD ["supervisord", "-n"]
